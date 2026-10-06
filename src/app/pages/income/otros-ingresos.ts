@@ -8,7 +8,6 @@ import { IngresosService } from '../../services/ingresos';
 import { SupabaseService, mensajeDeError } from '../../services/supabase';
 import { fechaIso } from '../../utils/fechas';
 
-/** Plata que ganas por fuera del negocio: suma a la caja y en Cierres sale aparte. */
 @Component({
   selector: 'app-otros-ingresos',
   imports: [Encabezado, CampoMoneda, MonedaPipe, FechaCortaPipe],
@@ -33,7 +32,6 @@ export class OtrosIngresos {
     () => (this.monto() ?? 0) > 0 && this.descripcion().trim().length > 0 && this.fecha() !== '',
   );
 
-  /** Total de este mes. */
   protected readonly totalMes = computed(() => {
     const mes = this.hoy.slice(0, 7);
     return this.ingresos()
@@ -84,7 +82,6 @@ export class OtrosIngresos {
     }
   }
 
-  /** Primer toque pide confirmación; el segundo borra (y la caja se corrige). */
   protected async eliminar(ingreso: Ingreso): Promise<void> {
     if (this.guardando()) return;
     if (this.borrandoId() !== ingreso.id) {

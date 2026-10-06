@@ -44,24 +44,19 @@ export class Dashboard {
 
   protected readonly hoy = fechaDeHoy();
 
-  // Desde Supabase
   protected readonly saldoCaja = signal<number | null>(null);
   protected readonly prestado = signal<number | null>(null);
   protected readonly porReponer = signal<Insumo[]>([]);
   protected readonly vasos = signal<VasosDelDia[]>([]);
-  /** Plata que dejas de base (aparte de la caja). */
   protected readonly base = signal(0);
   protected readonly error = signal<string | null>(null);
 
-  /** Hoja abierta: ajustar caja, base o vasos del día. */
   protected readonly hoja = signal<'caja' | 'base' | 'vasos' | null>(null);
   protected readonly vasosEnEdicion = signal<VasosDelDia | null>(null);
   protected readonly sumandoId = signal<string | null>(null);
 
-  /** Ventas de los últimos 7 días (se crean al cerrar cada día). */
   private readonly ventas = signal<Venta[]>([]);
 
-  /** Ventas de hoy agrupadas por producto (ej: Vaso 12 oz → 24 und). */
   protected readonly ventasHoy = computed(() => {
     const porProducto = new Map<string, { nombre: string; cantidad: number; total: number }>();
     for (const venta of this.ventas().filter((v) => diasDesde(v.fecha) === 0)) {
@@ -112,7 +107,6 @@ export class Dashboard {
     }
   }
 
-  /** Aparte, para que si falla (ej: falta correr el SQL 04) lo demás igual se vea. */
   private async cargarVasos(): Promise<void> {
     try {
       const [vasos, base] = await Promise.all([
@@ -134,7 +128,6 @@ export class Dashboard {
     }
   }
 
-  /** Ej: "2 paquetes" o "1 paquete + 10". */
   protected paquetes(item: VasosDelDia): string {
     const porPaquete = item.unidadesPaquete ?? 0;
     if (!porPaquete) return '';
@@ -173,7 +166,6 @@ export class Dashboard {
     this.recargarVasosEInventario();
   }
 
-  /** Bajar vasos descuenta paquetes del inventario: se recargan ambos. */
   private async recargarVasosEInventario(): Promise<void> {
     try {
       const [vasos, insumos] = await Promise.all([

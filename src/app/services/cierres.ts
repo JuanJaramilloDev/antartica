@@ -83,12 +83,9 @@ function aGasto(f: FilaGasto): Gasto {
 const COLUMNAS_CIERRE =
   'id, fecha, sueldo_empleada, vasos_vendidos, total_ventas, costo, total_final, ganancia';
 
-/** Cierres del día, sueldos, gastos y resumen por mes. */
 @Injectable({ providedIn: 'root' })
 export class CierresService {
   private readonly db = inject(SupabaseService).cliente;
-
-  // ---------- Sueldos ----------
 
   async ajustes(): Promise<Ajustes> {
     const { data, error } = await this.db.from('ajustes').select('clave, valor');
@@ -109,7 +106,6 @@ export class CierresService {
     if (error) throw error;
   }
 
-  /** Plata que dejas de base. Va aparte: no suma a la caja ni a los cierres. */
   async base(): Promise<number> {
     const { data, error } = await this.db
       .from('ajustes')
@@ -127,8 +123,6 @@ export class CierresService {
     if (error) throw error;
   }
 
-  // ---------- Cierres del día ----------
-
   async cierres(limite = 60): Promise<CierreDia[]> {
     const { data, error } = await this.db
       .from('cierres_resumen')
@@ -139,11 +133,6 @@ export class CierresService {
     return (data as FilaCierre[]).map(aCierre);
   }
 
-  /**
-   * Cierra (o vuelve a cerrar) el día. Crea las ventas y el pago de la empleada;
-   * la caja se ajusta sola.
-   * @param sobrantes vasos que sobraron por producto: { idProducto: cantidad }
-   */
   async cerrarDia(
     fecha: string,
     sobrantes: Record<string, number>,
@@ -157,13 +146,10 @@ export class CierresService {
     if (error) throw error;
   }
 
-  /** Borra el cierre: se deshacen sus ventas y el pago de la empleada. */
   async reabrir(fecha: string): Promise<void> {
     const { error } = await this.db.from('cierres_dia').delete().eq('fecha', fecha);
     if (error) throw error;
   }
-
-  // ---------- Meses y gastos ----------
 
   async resumenMensual(): Promise<ResumenMes[]> {
     const { data, error } = await this.db
@@ -174,7 +160,6 @@ export class CierresService {
     return (data as FilaMes[]).map(aMes);
   }
 
-  /** Gastos de un mes (mes = "2026-10-01"). */
   async gastosDelMes(mes: string): Promise<Gasto[]> {
     const { data, error } = await this.db
       .from('gastos')
@@ -198,7 +183,6 @@ export class CierresService {
   }
 }
 
-/** "2026-10-01" → "2026-11-01". */
 export function mesSiguiente(mes: string): string {
   const [anio, numeroMes] = mes.split('-').map(Number);
   return numeroMes === 12

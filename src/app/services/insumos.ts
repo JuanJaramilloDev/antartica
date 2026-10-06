@@ -35,7 +35,6 @@ export class InsumosService {
     return (data as FilaInsumo[]).map(aInsumo);
   }
 
-  /** Crea el insumo, o lo actualiza si se pasa el id. */
   async guardar(datos: DatosInsumo, id?: string): Promise<Insumo> {
     const consulta = id
       ? this.db.from('insumos').update(datos).eq('id', id)

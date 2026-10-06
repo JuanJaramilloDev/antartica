@@ -7,14 +7,12 @@ import { SupabaseService } from './supabase';
 export class CajaService {
   private readonly db = inject(SupabaseService).cliente;
 
-  /** Plata disponible: suma de todos los movimientos de caja. */
   async saldo(): Promise<number> {
     const { data, error } = await this.db.from('caja_saldo').select('saldo').single();
     if (error) throw error;
     return Number(data.saldo);
   }
 
-  /** Plata que prestaste y aún no te han devuelto. */
   async prestadoPorCobrar(): Promise<number> {
     const { data, error } = await this.db
       .from('prestamos_resumen')
@@ -35,7 +33,6 @@ export class CajaService {
     return data.map((fila) => ({ ...fila, monto: Number(fila.monto) }) as MovimientoCaja);
   }
 
-  /** Mete (monto positivo) o saca (negativo) plata de la caja a mano. */
   async ajustar(monto: number, descripcion: string): Promise<void> {
     const { error } = await this.db
       .from('movimientos_caja')

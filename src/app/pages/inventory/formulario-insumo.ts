@@ -6,7 +6,6 @@ import { mensajeDeError } from '../../services/supabase';
 
 const UNIDADES = ['und', 'bolsas', 'paquetes', 'kg', 'litros'];
 
-/** Crear o editar un insumo/jugo. Se muestra dentro de <app-hoja>. */
 @Component({
   selector: 'app-formulario-insumo',
   imports: [Contador],
@@ -16,11 +15,8 @@ const UNIDADES = ['und', 'bolsas', 'paquetes', 'kg', 'litros'];
 export class FormularioInsumo implements OnInit {
   private readonly servicio = inject(InsumosService);
 
-  /** null = insumo nuevo. */
   readonly insumo = input<Insumo | null>(null);
-  /** Valores iniciales para uno nuevo (ej: categoría Jugos si se abre desde esa pestaña). */
   readonly valoresIniciales = input<Partial<DatosInsumo>>({});
-  /** Categorías existentes, para elegir con un toque. */
   readonly categorias = input<string[]>([]);
 
   readonly guardado = output<Insumo>();
@@ -78,7 +74,6 @@ export class FormularioInsumo implements OnInit {
     }
   }
 
-  /** Primer toque pide confirmación; el segundo elimina. */
   protected async eliminar(): Promise<void> {
     const insumo = this.insumo();
     if (!insumo || this.guardando()) return;

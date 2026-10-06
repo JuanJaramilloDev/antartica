@@ -7,14 +7,12 @@ import { mensajeDeError } from '../../services/supabase';
 import { fechaIso, finDeMes, nombreMes } from '../../utils/fechas';
 
 export interface Semestre {
-  /** Ej: "2026-2" (año y 1 = ene–jun, 2 = jul–dic). */
   clave: string;
   nombre: string;
   anio: number;
   parte: 1 | 2;
 }
 
-/** Un mes sin movimientos (para meses del semestre que aún no tienen datos). */
 export function mesVacio(mes: string): ResumenMes {
   return {
     mes,
@@ -35,10 +33,6 @@ export function mesVacio(mes: string): ResumenMes {
 
 type CategoriaManual = Extract<CategoriaGasto, 'Reinversión' | 'Otro'>;
 
-/**
- * Detalle de un semestre: lo vendido y los otros ingresos de cada mes, y agregar
- * un gasto a cualquier mes ya pasado o al actual. Va dentro de <app-hoja>.
- */
 @Component({
   selector: 'app-detalle-semestre',
   imports: [CampoMoneda, MonedaPipe],
@@ -48,17 +42,14 @@ export class DetalleSemestre {
   private readonly servicio = inject(CierresService);
 
   readonly semestre = input.required<Semestre>();
-  /** Todos los meses con datos (el componente toma los de este semestre). */
   readonly meses = input.required<ResumenMes[]>();
   readonly abrirMes = output<ResumenMes>();
-  /** Se agregó un gasto: el padre recarga los meses. */
   readonly cambiado = output<void>();
   readonly cerrar = output<void>();
 
   protected readonly nombreMes = nombreMes;
   private readonly mesActual = fechaIso().slice(0, 7) + '-01';
 
-  /** Los meses del semestre hasta el mes actual, con sus números (o en cero). */
   protected readonly mesesDelSemestre = computed(() => {
     const { anio, parte } = this.semestre();
     const porMes = new Map(this.meses().map((m) => [m.mes, m]));
@@ -84,7 +75,6 @@ export class DetalleSemestre {
     ),
   );
 
-  // Agregar gasto a un mes
   protected readonly mesGasto = signal('');
   protected readonly categoria = signal<CategoriaManual>('Reinversión');
   protected readonly monto = signal<number | null>(null);
@@ -93,7 +83,6 @@ export class DetalleSemestre {
   protected readonly error = signal<string | null>(null);
   protected readonly aviso = signal<string | null>(null);
 
-  /** Mes elegido; por defecto el más reciente del semestre. */
   protected readonly mesElegido = computed(() => {
     const meses = this.mesesDelSemestre();
     return this.mesGasto() || meses[meses.length - 1]?.mes || '';
@@ -107,7 +96,6 @@ export class DetalleSemestre {
     if (!this.gastoValido() || this.guardando()) return;
 
     const mes = this.mesElegido();
-    // Mes actual → hoy; mes pasado → último día de ese mes.
     const fecha = mes === this.mesActual ? fechaIso() : finDeMes(mes);
 
     this.guardando.set(true);

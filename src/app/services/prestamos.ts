@@ -46,10 +46,6 @@ function aAbono(fila: FilaAbono): Abono {
   };
 }
 
-/**
- * Préstamos de dinero que haces. La caja se ajusta sola en Supabase:
- * prestar resta, cada abono suma.
- */
 @Injectable({ providedIn: 'root' })
 export class PrestamosService {
   private readonly db = inject(SupabaseService).cliente;
@@ -64,7 +60,6 @@ export class PrestamosService {
     return (data as FilaPrestamo[]).map(aPrestamo);
   }
 
-  /** Vuelve a leer un préstamo (para tener abonado/saldo/estado al día). */
   async obtener(id: string): Promise<Prestamo> {
     const { data, error } = await this.db
       .from('prestamos_resumen')
@@ -75,7 +70,6 @@ export class PrestamosService {
     return aPrestamo(data as FilaPrestamo);
   }
 
-  /** Crea el préstamo, o lo actualiza si se pasa el id. */
   async guardar(datos: DatosPrestamo, id?: string): Promise<Prestamo> {
     const fila = {
       persona: datos.persona,
@@ -92,7 +86,6 @@ export class PrestamosService {
     return this.obtener(data.id);
   }
 
-  /** Borra el préstamo y sus abonos; la caja se corrige sola. */
   async eliminar(id: string): Promise<void> {
     const { error } = await this.db.from('prestamos').delete().eq('id', id);
     if (error) throw error;

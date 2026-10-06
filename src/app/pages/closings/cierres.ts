@@ -12,7 +12,6 @@ import { DetalleMes } from './detalle-mes';
 import { DetalleSemestre, Semestre, mesVacio } from './detalle-semestre';
 import { FormularioCierre } from './formulario-cierre';
 
-/** Semestre con sus totales, para la lista. */
 interface FilaSemestre extends Semestre {
   ventas: number;
   total: number;
@@ -20,7 +19,6 @@ interface FilaSemestre extends Semestre {
   otrosIngresos: number;
 }
 
-/** Cierres: cierre del día, sueldos, meses y semestres (como el Excel). */
 @Component({
   selector: 'app-cierres',
   imports: [
@@ -50,15 +48,10 @@ export class Cierres {
   protected readonly hoja = signal<'cierre' | 'mes' | 'semestre' | 'sueldos' | null>(null);
   protected readonly cierreEnEdicion = signal<CierreDia | null>(null);
   protected readonly mesSeleccionado = signal<ResumenMes | null>(null);
-  /** Si el mes se abrió desde un semestre, "Listo" vuelve al semestre. */
   protected readonly semestreSeleccionado = signal<Semestre | null>(null);
 
   protected readonly cierreHoy = computed(() => this.cierres().find((c) => c.fecha === this.hoy));
 
-  /**
-   * Como la tabla "6 MESES" del Excel: enero–junio y julio–diciembre.
-   * El semestre actual siempre aparece, para poder agregarle gastos.
-   */
   protected readonly semestres = computed<FilaSemestre[]>(() => {
     const grupos = new Map<string, FilaSemestre>();
     const filaDe = (mes: string): FilaSemestre => {
@@ -106,7 +99,6 @@ export class Cierres {
       this.ajustes.set(ajustes);
       this.cierres.set(cierres);
       this.meses.set(meses);
-      // Si hay un mes abierto, que muestre los números nuevos.
       const abierto = this.mesSeleccionado();
       if (abierto) {
         this.mesSeleccionado.set(meses.find((m) => m.mes === abierto.mes) ?? mesVacio(abierto.mes));
@@ -133,7 +125,6 @@ export class Cierres {
     this.hoja.set('semestre');
   }
 
-  /** "Listo" en un mes: vuelve al semestre si se abrió desde ahí. */
   protected cerrarMes(): void {
     this.mesSeleccionado.set(null);
     if (this.semestreSeleccionado()) {

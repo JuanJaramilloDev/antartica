@@ -50,7 +50,6 @@
   transform: scale(0.9);
 }
 
-/* En PC la barra flota como una cápsula centrada */
 @media (min-width: 768px) {
   .barra {
     left: 50%;

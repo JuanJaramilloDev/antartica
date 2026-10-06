@@ -5,7 +5,6 @@ import { mensajeDeError } from '../../services/supabase';
 import { VasosService } from '../../services/vasos';
 import { fechaIso } from '../../utils/fechas';
 
-/** Poner el número exacto de vasos bajados hoy de un tamaño. Va dentro de <app-hoja>. */
 @Component({
   selector: 'app-ajuste-vasos',
   imports: [Contador],
@@ -65,7 +64,6 @@ export class AjusteVasos implements OnInit {
   protected readonly error = signal<string | null>(null);
 
   protected readonly cambio = computed(() => this.cantidad() !== this.vasos().cantidad);
-  /** Paquetes que quedarán en inventario si se guarda este cambio. */
   protected readonly inventarioDespues = computed(() => {
     const { paquetesEnInventario, unidadesPaquete, cantidad } = this.vasos();
     if (paquetesEnInventario === null || !unidadesPaquete) return null;
@@ -73,7 +71,6 @@ export class AjusteVasos implements OnInit {
     return Math.round((paquetesEnInventario - diferencia) * 100) / 100;
   });
 
-  /** Ej: "2 paquetes de 25 + 3 sueltos". */
   protected readonly paquetes = computed(() => {
     const porPaquete = this.vasos().unidadesPaquete ?? 0;
     if (!porPaquete) return '';

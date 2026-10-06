@@ -11,7 +11,6 @@
   } @else if (cargando()) {
     <h2 class="etiqueta-seccion">Cargando…</h2>
   } @else {
-    <!-- Cierre de hoy -->
     @if (cierreHoy(); as hoy) {
       <button type="button" class="tarjeta tarjeta-oscura tarjeta-boton" (click)="abrirCierre(hoy)">
         <span class="dato-etiqueta" style="display: flex; justify-content: space-between">
@@ -35,7 +34,6 @@
       </div>
     }
 
-    <!-- Sueldos -->
     <h2 class="etiqueta-seccion">
       Sueldos
       <a href="" (click)="$event.preventDefault(); hoja.set('sueldos')">Editar</a>
@@ -55,7 +53,6 @@
       </div>
     </div>
 
-    <!-- Días cerrados -->
     <h2 class="etiqueta-seccion">
       Días cerrados
       <a href="" (click)="$event.preventDefault(); abrirCierre(null)">Cerrar otro día</a>
@@ -80,7 +77,6 @@
       }
     </div>
 
-    <!-- Meses -->
     <h2 class="etiqueta-seccion">Por mes</h2>
     <div class="lista lista-desplazable">
       @for (mes of meses(); track mes.mes) {
@@ -105,7 +101,6 @@
       }
     </div>
 
-    <!-- Semestres -->
     <h2 class="etiqueta-seccion">Por semestre</h2>
     <div class="lista">
       @for (semestre of semestres(); track semestre.clave) {

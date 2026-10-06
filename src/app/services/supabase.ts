@@ -2,17 +2,14 @@ import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { entorno } from '../../environments/entorno';
 
-/** Cliente único de Supabase para toda la app. */
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {
-  /** false mientras entorno.ts tenga los valores de ejemplo. */
   readonly configurado =
     !entorno.supabaseUrl.includes('TU-PROYECTO') && !entorno.supabaseAnonKey.startsWith('TU-');
 
   readonly cliente: SupabaseClient = createClient(entorno.supabaseUrl, entorno.supabaseAnonKey);
 }
 
-/** Convierte errores de Supabase/red en mensajes claros en español. */
 export function mensajeDeError(error: unknown): string {
   const e = error as { code?: string; message?: string };
   const mensaje = e?.message ?? '';
@@ -21,7 +18,10 @@ export function mensajeDeError(error: unknown): string {
   }
   switch (e?.code) {
     case '42501':
-      return 'Sin permiso. Ejecuta supabase/02_acceso_temporal.sql en Supabase.';
+      return 'No tienes permiso para esto. Cierra sesión y vuelve a entrar.';
+    case 'PGRST301':
+    case 'PGRST303':
+      return 'Tu sesión venció. Vuelve a iniciar sesión.';
     case '42P01':
     case '42703':
     case '42883':

@@ -3,7 +3,6 @@ import { CampoMoneda } from '../../components/money-input/campo-moneda';
 import { CierresService } from '../../services/cierres';
 import { mensajeDeError } from '../../services/supabase';
 
-/** Editar la plata que dejas de base. Va dentro de <app-hoja>. */
 @Component({
   selector: 'app-ajuste-base',
   imports: [CampoMoneda],

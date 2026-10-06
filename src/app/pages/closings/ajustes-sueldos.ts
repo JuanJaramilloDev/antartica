@@ -4,7 +4,6 @@ import { Ajustes } from '../../models/modelos';
 import { CierresService } from '../../services/cierres';
 import { mensajeDeError } from '../../services/supabase';
 
-/** Editar el sueldo diario de la empleada y mi sueldo mensual. Va dentro de <app-hoja>. */
 @Component({
   selector: 'app-ajustes-sueldos',
   imports: [CampoMoneda],

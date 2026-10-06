@@ -1,12 +1,5 @@
-// Ping a Supabase para que el proyecto gratis no se pause por inactividad (7 días).
-// Vercel Cron lo llama cada 5 días (ver vercel.json). También se puede abrir a mano
-// pasando el secreto: /api/ping con el encabezado "Authorization: Bearer <CRON_SECRET>".
-//
-// Variables de entorno en Vercel: SUPABASE_URL, SUPABASE_ANON_KEY y CRON_SECRET.
-
 export async function GET(request: Request): Promise<Response> {
   const secreto = process.env['CRON_SECRET'];
-  // Vercel Cron manda "Authorization: Bearer <CRON_SECRET>" automáticamente.
   if (!secreto || request.headers.get('authorization') !== `Bearer ${secreto}`) {
     return Response.json({ ok: false, error: 'No autorizado' }, { status: 401 });
   }
@@ -20,11 +13,20 @@ export async function GET(request: Request): Promise<Response> {
     );
   }
 
-  const respuesta = await fetch(`${url}/rest/v1/rpc/ping`, {
-    method: 'POST',
-    headers: { apikey: clave, 'Content-Type': 'application/json' },
-    body: '{}',
-  });
+  let respuesta: Response;
+  try {
+    respuesta = await fetch(`${url}/rest/v1/rpc/ping`, {
+      method: 'POST',
+      headers: { apikey: clave, 'Content-Type': 'application/json' },
+      body: '{}',
+    });
+  } catch (error) {
+    console.error('No se pudo conectar con Supabase', error);
+    return Response.json(
+      { ok: false, error: 'No se pudo conectar con Supabase', detalle: String(error) },
+      { status: 502 },
+    );
+  }
   const cuerpo = await respuesta.text();
 
   if (!respuesta.ok) {

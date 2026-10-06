@@ -6,10 +6,6 @@ import { MonedaPipe } from '../../pipes/moneda';
 import { CajaService } from '../../services/caja';
 import { mensajeDeError } from '../../services/supabase';
 
-/**
- * Meter o sacar plata de la caja a mano, o "contar" la caja (decir cuánto hay
- * de verdad y que la app registre la diferencia). Va dentro de <app-hoja>.
- */
 type Modo = 'agregar' | 'retirar' | 'contar';
 
 const NOMBRES_TIPO: Record<TipoMovimiento, string> = {
@@ -31,7 +27,6 @@ export class AjusteCaja implements OnInit {
   private readonly caja = inject(CajaService);
 
   readonly saldo = input.required<number>();
-  /** Se guardó un ajuste: el dashboard recarga el saldo. */
   readonly ajustado = output<void>();
   readonly cerrar = output<void>();
 
@@ -49,7 +44,6 @@ export class AjusteCaja implements OnInit {
   protected readonly guardando = signal(false);
   protected readonly error = signal<string | null>(null);
 
-  /** Cuánto cambia la caja con lo escrito (+ entra, − sale). */
   protected readonly diferencia = computed(() => {
     const monto = this.monto();
     if (monto === null) return 0;

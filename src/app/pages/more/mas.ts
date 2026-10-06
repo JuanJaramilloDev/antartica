@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, inject, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { Encabezado } from '../../components/page-header/encabezado';
+import { SesionService } from '../../services/sesion';
 
 interface Opcion {
   ruta: string;
@@ -9,7 +10,6 @@ interface Opcion {
   icono: 'prestamos' | 'cierres' | 'ingresos';
 }
 
-/** Pestaña "Más": lista de secciones extra. Para agregar una, súmala a `opciones`. */
 @Component({
   selector: 'app-mas',
   imports: [RouterLink, Encabezado],
@@ -48,6 +48,26 @@ interface Opcion {
           </a>
         }
       </div>
+
+      <h2 class="etiqueta-seccion">Cuenta</h2>
+      <div class="lista">
+        <div class="fila">
+          <span class="fila-cuerpo">
+            <span class="fila-titulo" style="display: block">{{ correo() }}</span>
+            <span class="fila-subtitulo" style="display: block">Administrador</span>
+          </span>
+        </div>
+      </div>
+      <button
+        type="button"
+        class="boton-peligro"
+        style="margin-top: 12px"
+        [class.confirmar]="confirmandoSalir()"
+        [disabled]="saliendo()"
+        (click)="cerrarSesion()"
+      >
+        {{ saliendo() ? 'Cerrando…' : confirmandoSalir() ? 'Toca de nuevo para salir' : 'Cerrar sesión' }}
+      </button>
     </div>
   `,
   styles: `
@@ -73,6 +93,27 @@ interface Opcion {
   `,
 })
 export class Mas {
+  private readonly sesion = inject(SesionService);
+  private readonly router = inject(Router);
+
+  protected readonly correo = this.sesion.correo;
+  protected readonly confirmandoSalir = signal(false);
+  protected readonly saliendo = signal(false);
+
+  protected async cerrarSesion(): Promise<void> {
+    if (!this.confirmandoSalir()) {
+      this.confirmandoSalir.set(true);
+      return;
+    }
+    this.saliendo.set(true);
+    try {
+      await this.sesion.cerrarSesion();
+    } finally {
+      this.saliendo.set(false);
+      await this.router.navigateByUrl('/login');
+    }
+  }
+
   protected readonly opciones: Opcion[] = [
     {
       ruta: '/panel/mas/prestamos',

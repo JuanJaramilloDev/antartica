@@ -1,9 +1,5 @@
 import { Component, input, output } from '@angular/core';
 
-/**
- * Hoja modal estilo iOS: sube desde abajo en el celular y se centra en PC.
- * El contenido (normalmente un formulario) se proyecta adentro.
- */
 @Component({
   selector: 'app-hoja',
   host: { '(document:keydown.escape)': 'abierta() && cerrar.emit()' },

@@ -2,7 +2,6 @@ import { Component, computed, input, model } from '@angular/core';
 
 const formato = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 });
 
-/** Campo de dinero en pesos: muestra "$ 7.000" mientras se escribe y guarda el número 7000. */
 @Component({
   selector: 'app-campo-moneda',
   template: `
@@ -49,7 +48,6 @@ export class CampoMoneda {
     const digitos = campo.value.replace(/\D/g, '').slice(0, 12);
     const numero = digitos ? Number(digitos) : null;
     this.valor.set(numero);
-    // Reescribe el texto aunque el número no cambie (ej: si escribieron una letra).
     campo.value = numero === null ? '' : `$ ${formato.format(numero)}`;
   }
 }

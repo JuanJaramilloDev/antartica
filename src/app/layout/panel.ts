@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, effect, inject } from '@angular/core';
+import { Router, RouterOutlet } from '@angular/router';
 import { BarraNavegacion } from '../components/tab-bar/barra-navegacion';
+import { SesionService } from '../services/sesion';
 
-/** Contenedor del panel: página actual + barra de navegación inferior. */
 @Component({
   selector: 'app-panel',
   imports: [RouterOutlet, BarraNavegacion],
@@ -19,4 +19,13 @@ import { BarraNavegacion } from '../components/tab-bar/barra-navegacion';
     }
   `,
 })
-export class Panel {}
+export class Panel {
+  private readonly sesion = inject(SesionService);
+  private readonly router = inject(Router);
+
+  constructor() {
+    effect(() => {
+      if (!this.sesion.sesion()) this.router.navigateByUrl('/login');
+    });
+  }
+}

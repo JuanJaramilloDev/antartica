@@ -2,7 +2,6 @@ import { Injectable, inject } from '@angular/core';
 import { Ingreso } from '../models/modelos';
 import { SupabaseService } from './supabase';
 
-/** Ingresos por fuera del negocio. La caja se ajusta sola en Supabase. */
 @Injectable({ providedIn: 'root' })
 export class IngresosService {
   private readonly db = inject(SupabaseService).cliente;

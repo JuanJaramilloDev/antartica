@@ -26,7 +26,6 @@ export class Ventas {
   ];
   protected readonly periodo = signal<Periodo>('semana');
 
-  /** Ventas de los últimos 30 días; los periodos más cortos se filtran aquí. */
   private readonly todas = signal<Venta[]>([]);
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);

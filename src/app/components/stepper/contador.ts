@@ -1,6 +1,5 @@
 import { Component, input, model } from '@angular/core';
 
-/** Contador estilo iOS: [ − ] 12 [ + ]. Permite escribir el número (acepta decimales). */
 @Component({
   selector: 'app-contador',
   template: `
@@ -85,7 +84,6 @@ export class Contador {
   }
 
   private fijar(numero: number): void {
-    // Redondea a 2 decimales para evitar cosas como 0.30000000000000004.
     this.valor.set(Math.max(this.minimo(), Math.round(numero * 100) / 100));
   }
 }

@@ -7,7 +7,6 @@ import { PrestamosService } from '../../services/prestamos';
 import { mensajeDeError } from '../../services/supabase';
 import { diasDesde, fechaIso } from '../../utils/fechas';
 
-/** Detalle de un préstamo: saldo, registrar abonos e historial. Va dentro de <app-hoja>. */
 @Component({
   selector: 'app-detalle-prestamo',
   imports: [CampoMoneda, MonedaPipe, FechaCortaPipe],
@@ -17,7 +16,6 @@ export class DetallePrestamo implements OnInit {
   private readonly servicio = inject(PrestamosService);
 
   readonly prestamo = input.required<Prestamo>();
-  /** El préstamo cambió (abono nuevo o borrado): trae abonado/saldo/estado al día. */
   readonly actualizado = output<Prestamo>();
   readonly editar = output<void>();
   readonly cerrar = output<void>();
@@ -80,7 +78,6 @@ export class DetallePrestamo implements OnInit {
     }
   }
 
-  /** Primer toque pide confirmación; el segundo borra el abono. */
   protected async eliminarAbono(abono: Abono): Promise<void> {
     if (this.guardando()) return;
     if (this.borrandoId() !== abono.id) {

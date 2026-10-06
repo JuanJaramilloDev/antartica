@@ -51,7 +51,6 @@ export class ProductosService {
     return (data as FilaProducto[]).map(aProducto);
   }
 
-  /** Crea el producto, o lo actualiza si se pasa el id. */
   async guardar(datos: DatosProducto, id?: string): Promise<Producto> {
     const consulta = id
       ? this.db.from('productos').update(aFila(datos)).eq('id', id)

@@ -7,30 +7,53 @@
   <h1>Iniciar sesión</h1>
   <p class="texto-secundario">Ingresa con tu correo y contraseña.</p>
 
-  <form (submit)="ingresar($event)">
+  <form (submit)="ingresar($event)" novalidate>
     <div class="lista campos">
-      <label class="fila">
+      <label class="fila" for="login-correo">
         <span class="campo-etiqueta">Correo</span>
         <input
+          id="login-correo"
           type="email"
+          inputmode="email"
           placeholder="tu@correo.com"
-          autocomplete="email"
+          autocomplete="username"
+          autocapitalize="none"
+          spellcheck="false"
           [value]="correo()"
           (input)="correo.set($any($event.target).value)"
         />
       </label>
-      <label class="fila">
+      <label class="fila" for="login-clave">
         <span class="campo-etiqueta">Clave</span>
         <input
-          type="password"
+          id="login-clave"
+          [type]="verClave() ? 'text' : 'password'"
           placeholder="Requerida"
           autocomplete="current-password"
           [value]="clave()"
           (input)="clave.set($any($event.target).value)"
         />
+        <button
+          type="button"
+          class="ver-clave"
+          [attr.aria-label]="verClave() ? 'Ocultar clave' : 'Mostrar clave'"
+          (click)="verClave.set(!verClave())"
+        >
+          {{ verClave() ? 'Ocultar' : 'Ver' }}
+        </button>
       </label>
     </div>
 
-    <button type="submit" class="boton boton-primario boton-bloque">Continuar</button>
+    @if (error()) {
+      <div class="aviso-error" role="alert" style="margin: -8px 0 16px">{{ error() }}</div>
+    }
+
+    <button
+      type="submit"
+      class="boton boton-primario boton-bloque"
+      [disabled]="!valido() || entrando()"
+    >
+      {{ entrando() ? 'Entrando…' : 'Continuar' }}
+    </button>
   </form>
 </section>

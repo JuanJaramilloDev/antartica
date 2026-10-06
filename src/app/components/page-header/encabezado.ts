@@ -1,10 +1,6 @@
 import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-/**
- * Título grande estilo iOS. Lo que se ponga dentro se muestra a la derecha (acciones).
- * Con `volver` muestra arriba un enlace "‹ Más" para regresar.
- */
 @Component({
   selector: 'app-encabezado',
   imports: [RouterLink],
@@ -75,7 +71,6 @@ import { RouterLink } from '@angular/router';
 export class Encabezado {
   readonly titulo = input.required<string>();
   readonly subtitulo = input<string>();
-  /** Ruta a la que regresa el enlace de arriba (ej: "/panel/mas"). */
   readonly volver = input<string>();
   readonly textoVolver = input('Más');
 }

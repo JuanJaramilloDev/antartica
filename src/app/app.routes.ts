@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { soloAdmin, soloSinSesion } from './guards/acceso';
 
 export const routes: Routes = [
   {
@@ -9,10 +10,12 @@ export const routes: Routes = [
   {
     path: 'login',
     title: 'Iniciar sesión · Antártica',
+    canActivate: [soloSinSesion],
     loadComponent: () => import('./pages/login/inicio-sesion').then((m) => m.InicioSesion),
   },
   {
     path: 'panel',
+    canActivate: [soloAdmin],
     loadComponent: () => import('./layout/panel').then((m) => m.Panel),
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },

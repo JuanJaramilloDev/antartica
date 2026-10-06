@@ -6,7 +6,6 @@ import { PrestamosService } from '../../services/prestamos';
 import { mensajeDeError } from '../../services/supabase';
 import { fechaIso } from '../../utils/fechas';
 
-/** Crear o editar un préstamo de dinero. Se muestra dentro de <app-hoja>. */
 @Component({
   selector: 'app-formulario-prestamo',
   imports: [CampoMoneda, MonedaPipe],
@@ -15,7 +14,6 @@ import { fechaIso } from '../../utils/fechas';
 export class FormularioPrestamo implements OnInit {
   private readonly servicio = inject(PrestamosService);
 
-  /** null = préstamo nuevo. */
   readonly prestamo = input<Prestamo | null>(null);
   readonly guardado = output<Prestamo>();
   readonly eliminado = output<string>();
@@ -77,7 +75,6 @@ export class FormularioPrestamo implements OnInit {
     }
   }
 
-  /** Primer toque pide confirmación; el segundo elimina (con sus abonos). */
   protected async eliminar(): Promise<void> {
     const prestamo = this.prestamo();
     if (!prestamo || this.guardando()) return;

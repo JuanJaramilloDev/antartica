@@ -9,7 +9,6 @@ import { fechaIso, finDeMes, nombreMes } from '../../utils/fechas';
 
 type CategoriaManual = Extract<CategoriaGasto, 'Reinversión' | 'Otro'>;
 
-/** Cierre de un mes: desglose, gastos (reinversión) y pago de mi sueldo. Va en <app-hoja>. */
 @Component({
   selector: 'app-detalle-mes',
   imports: [CampoMoneda, MonedaPipe, FechaCortaPipe],
@@ -20,7 +19,6 @@ export class DetalleMes implements OnInit {
 
   readonly mes = input.required<ResumenMes>();
   readonly sueldoMioMes = input(0);
-  /** Se agregó o borró un gasto: el padre recarga el resumen. */
   readonly cambiado = output<void>();
   readonly cerrar = output<void>();
 
@@ -31,17 +29,14 @@ export class DetalleMes implements OnInit {
   protected readonly borrandoId = signal<string | null>(null);
   protected readonly error = signal<string | null>(null);
 
-  // Nuevo gasto
   protected readonly categoria = signal<CategoriaManual>('Reinversión');
   protected readonly monto = signal<number | null>(null);
   protected readonly descripcion = signal('');
   protected readonly fecha = signal('');
 
-  /** Gastos puestos a mano (los de la empleada salen de los cierres). */
   protected readonly gastosManuales = computed(() => this.gastos().filter((g) => !g.cierreId));
   protected readonly gastoValido = computed(() => (this.monto() ?? 0) > 0 && this.fecha() !== '');
 
-  /** Fecha por defecto: hoy si es este mes; si no, el último día de ese mes. */
   private readonly fechaPorDefecto = computed(() => {
     const hoy = fechaIso();
     const mes = this.mes().mes;
@@ -101,7 +96,6 @@ export class DetalleMes implements OnInit {
     }
   }
 
-  /** Primer toque pide confirmación; el segundo borra el gasto. */
   protected async eliminarGasto(gasto: Gasto): Promise<void> {
     if (this.guardando()) return;
     if (this.borrandoId() !== gasto.id) {

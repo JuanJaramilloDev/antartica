@@ -37,7 +37,6 @@ export class Inventario {
     [...new Set(this.insumos().map((i) => i.categoria))].sort(),
   );
 
-  /** Lo que se ve según la pestaña, agrupado por categoría (Dulces, Salsas, Empaques...). */
   protected readonly grupos = computed(() => {
     const filtro = this.filtro();
     const visibles = this.insumos().filter((i) =>
@@ -60,7 +59,6 @@ export class Inventario {
       }));
   });
 
-  /** Si se crea desde la pestaña Jugos, ya viene con esa categoría. */
   protected readonly valoresNuevo = computed<Partial<DatosInsumo>>(() =>
     this.filtro() === 'jugos' ? { categoria: CATEGORIA_JUGOS, unidad: 'bolsas' } : {},
   );

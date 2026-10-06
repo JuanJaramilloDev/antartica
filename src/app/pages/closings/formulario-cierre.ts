@@ -9,10 +9,6 @@ import { mensajeDeError } from '../../services/supabase';
 import { VasosService } from '../../services/vasos';
 import { fechaIso } from '../../utils/fechas';
 
-/**
- * Cerrar el día: por cada tamaño escribes los vasos que sobraron.
- * vendidos = bajados − sobran → ventas; debes tener = ventas − sueldo empleada.
- */
 @Component({
   selector: 'app-formulario-cierre',
   imports: [CampoMoneda, Contador, MonedaPipe, FechaCortaPipe],
@@ -22,7 +18,6 @@ export class FormularioCierre implements OnInit {
   private readonly cierres = inject(CierresService);
   private readonly vasosServicio = inject(VasosService);
 
-  /** null = cerrar un día nuevo. */
   readonly cierre = input<CierreDia | null>(null);
   readonly sueldoPorDefecto = input(0);
   readonly guardado = output<void>();
@@ -41,7 +36,6 @@ export class FormularioCierre implements OnInit {
 
   protected readonly esEdicion = computed(() => this.cierre() !== null);
 
-  /** Solo los tamaños de los que se bajaron vasos ese día. */
   protected readonly filas = computed(() =>
     this.vasos()
       .filter((v) => v.cantidad > 0)
@@ -105,7 +99,6 @@ export class FormularioCierre implements OnInit {
     }
   }
 
-  /** Primer toque pide confirmación; el segundo borra el cierre. */
   protected async reabrir(): Promise<void> {
     if (!this.esEdicion() || this.guardando()) return;
     if (!this.confirmandoReabrir()) {

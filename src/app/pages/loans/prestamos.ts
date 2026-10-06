@@ -10,7 +10,6 @@ import { diasDesde, iniciales } from '../../utils/fechas';
 import { DetallePrestamo } from './detalle-prestamo';
 import { FormularioPrestamo } from './formulario-prestamo';
 
-/** Qué muestra la hoja: crear, ver detalle (abonos) o editar. */
 type Vista = 'nuevo' | 'detalle' | 'editar';
 
 @Component({
@@ -91,7 +90,6 @@ export class Prestamos {
     this.vista.set(null);
   }
 
-  /** Reemplaza (o agrega) el préstamo en la lista con los datos nuevos. */
   protected alActualizar(prestamo: Prestamo): void {
     this.prestamos.update((lista) =>
       lista.some((p) => p.id === prestamo.id)
@@ -103,7 +101,6 @@ export class Prestamos {
 
   protected alGuardar(prestamo: Prestamo): void {
     this.alActualizar(prestamo);
-    // Al crear o editar, queda abierto el detalle para poder registrar abonos.
     this.vista.set('detalle');
   }
 
@@ -112,7 +109,6 @@ export class Prestamos {
     this.cerrar();
   }
 
-  /** Cancelar en "editar" vuelve al detalle; en "nuevo" cierra. */
   protected cancelarFormulario(): void {
     this.vista.set(this.vista() === 'editar' ? 'detalle' : null);
   }

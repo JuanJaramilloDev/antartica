@@ -24,7 +24,6 @@ export class Productos {
   protected readonly formularioAbierto = signal(false);
   protected readonly enEdicion = signal<Producto | null>(null);
 
-  /** Filtrados por la búsqueda; los activos primero. */
   protected readonly visibles = computed(() => {
     const texto = normalizar(this.busqueda());
     return this.productos()
@@ -56,7 +55,6 @@ export class Productos {
     return producto.precioVenta - producto.costo;
   }
 
-  /** Margen sobre el precio de venta, en %. */
   protected margen(producto: Producto): number {
     if (!producto.precioVenta) return 0;
     return Math.round((this.ganancia(producto) / producto.precioVenta) * 100);

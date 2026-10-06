@@ -14,12 +14,10 @@ interface FilaVenta {
   productos: { nombre: string } | null;
 }
 
-/** Ventas (por ahora se crean solas al cerrar el día). */
 @Injectable({ providedIn: 'root' })
 export class VentasService {
   private readonly db = inject(SupabaseService).cliente;
 
-  /** Ventas desde una fecha ("2026-10-01") hasta hoy, de la más nueva a la más vieja. */
   async desde(fecha: string): Promise<Venta[]> {
     const { data, error } = await this.db
       .from('ventas')

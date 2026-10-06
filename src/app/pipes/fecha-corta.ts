@@ -3,7 +3,6 @@ import { aFecha, diasDesde } from '../utils/fechas';
 
 const formatoDia = new Intl.DateTimeFormat('es-CO', { day: 'numeric', month: 'short' });
 
-/** Muestra "Hoy", "Ayer", "Mañana" o "3 oct". */
 @Pipe({ name: 'fechaCorta' })
 export class FechaCortaPipe implements PipeTransform {
   transform(valor: string | null | undefined): string {

@@ -1,17 +1,10 @@
-/* ============================================================
-   Antártica — estilos globales (estilo iOS minimalista)
-   Paleta: azul claro, negro y blanco
-   ============================================================ */
-
 :root {
-  /* Paleta */
   --azul: #5ab4f5;
   --azul-fuerte: #1e8fe1;
   --azul-suave: #eaf5fe;
   --negro: #0b0b0c;
   --blanco: #ffffff;
 
-  /* Neutros */
   --fondo: #f4f6f9;
   --superficie: #ffffff;
   --texto: #0b0b0c;
@@ -19,18 +12,15 @@
   --texto-terciario: #a3a8b3;
   --separador: rgba(60, 60, 67, 0.12);
 
-  /* Estados */
   --verde: #2fb26a;
   --rojo: #ef4b4b;
   --naranja: #f59f0b;
 
-  /* Forma */
   --radio-sm: 10px;
   --radio: 16px;
   --radio-lg: 22px;
   --sombra: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 16px rgba(15, 23, 42, 0.04);
 
-  /* Layout */
   --ancho-max: 720px;
   --alto-barra: 64px;
   --seguro-abajo: env(safe-area-inset-bottom, 0px);
@@ -80,8 +70,6 @@ a {
   text-decoration: none;
 }
 
-/* ---------- Página ---------- */
-
 .pagina {
   max-width: var(--ancho-max);
   margin: 0 auto;
@@ -108,8 +96,6 @@ a {
   color: var(--azul-fuerte);
 }
 
-/* ---------- Tarjetas ---------- */
-
 .tarjeta {
   background: var(--superficie);
   border-radius: var(--radio);
@@ -117,7 +103,6 @@ a {
   box-shadow: var(--sombra);
 }
 
-/* Tarjeta que se puede tocar (abre una hoja) */
 .tarjeta-boton {
   display: block;
   width: 100%;
@@ -171,8 +156,6 @@ a {
   font-size: 12px;
   color: var(--texto-secundario);
 }
-
-/* ---------- Listas agrupadas (inset grouped) ---------- */
 
 .lista {
   background: var(--superficie);
@@ -243,8 +226,6 @@ a {
 .fila-final .fila-titulo {
   font-weight: 600;
 }
-
-/* ---------- Controles ---------- */
 
 .buscador {
   display: flex;
@@ -393,7 +374,6 @@ a {
   background: var(--azul);
 }
 
-/* Lista que muestra ~5 filas y el resto con scroll interno */
 .lista-desplazable {
   --alto-fila: 64.5px;
   max-height: calc(var(--alto-fila) * 5);
@@ -401,8 +381,6 @@ a {
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
-
-/* ---------- Filas tocables ---------- */
 
 button.fila {
   width: 100%;
@@ -428,8 +406,6 @@ button.fila:active {
 .atenuado {
   opacity: 0.5;
 }
-
-/* ---------- Formularios ---------- */
 
 .hoja-barra {
   display: grid;
@@ -573,7 +549,6 @@ button.fila:active {
   font-weight: 600;
 }
 
-/* Interruptor iOS */
 .interruptor {
   appearance: none;
   -webkit-appearance: none;
@@ -608,8 +583,6 @@ button.fila:active {
 .interruptor:checked::after {
   transform: translateX(20px);
 }
-
-/* ---------- Escritorio ---------- */
 
 @media (min-width: 768px) {
   .rejilla-4 {

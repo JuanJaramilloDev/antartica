@@ -7,7 +7,6 @@ import { MonedaPipe } from '../../pipes/moneda';
 import { ProductosService } from '../../services/productos';
 import { mensajeDeError } from '../../services/supabase';
 
-/** Crear o editar un producto. Se muestra dentro de <app-hoja>. */
 @Component({
   selector: 'app-formulario-producto',
   imports: [CampoMoneda, Contador, MonedaPipe],
@@ -17,7 +16,6 @@ export class FormularioProducto implements OnInit {
   private readonly servicio = inject(ProductosService);
   private readonly insumosServicio = inject(InsumosService);
 
-  /** null = producto nuevo. */
   readonly producto = input<Producto | null>(null);
   readonly guardado = output<Producto>();
   readonly eliminado = output<string>();
@@ -27,9 +25,7 @@ export class FormularioProducto implements OnInit {
   protected readonly precioVenta = signal<number | null>(null);
   protected readonly costo = signal<number | null>(null);
   protected readonly activo = signal(true);
-  /** 0 = no se maneja por paquetes. */
   protected readonly unidadesPaquete = signal(0);
-  /** Insumo del que se descuentan los paquetes ('' = ninguno). */
   protected readonly insumoId = signal('');
   protected readonly insumos = signal<Insumo[]>([]);
 
@@ -64,7 +60,6 @@ export class FormularioProducto implements OnInit {
     try {
       this.insumos.set(await this.insumosServicio.listar());
     } catch {
-      // Si falla, simplemente no se muestra la lista; el resto del formulario sirve.
     }
   }
 
@@ -94,7 +89,6 @@ export class FormularioProducto implements OnInit {
     }
   }
 
-  /** Primer toque pide confirmación; el segundo elimina. */
   protected async eliminar(): Promise<void> {
     const producto = this.producto();
     if (!producto || this.guardando()) return;
