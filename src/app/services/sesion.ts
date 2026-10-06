@@ -4,12 +4,18 @@ import { SupabaseService } from './supabase';
 
 export type Rol = 'admin' | 'empleada';
 
+const INICIO_POR_ROL: Record<Rol, string> = {
+  admin: '/panel',
+  empleada: '/empleada',
+};
+
 @Injectable({ providedIn: 'root' })
 export class SesionService {
   private readonly db = inject(SupabaseService).cliente;
 
   readonly sesion = signal<Session | null>(null);
   readonly rol = signal<Rol | null>(null);
+  readonly nombre = signal<string | null>(null);
   readonly correo = computed(() => this.sesion()?.user.email ?? null);
 
   private readonly lista: Promise<void>;
@@ -18,16 +24,23 @@ export class SesionService {
     this.lista = this.cargar();
     this.db.auth.onAuthStateChange((_evento, sesion) => {
       this.sesion.set(sesion);
-      if (!sesion) this.rol.set(null);
+      if (!sesion) {
+        this.rol.set(null);
+        this.nombre.set(null);
+      }
     });
   }
 
-  async esAdmin(): Promise<boolean> {
+  async rolActual(): Promise<Rol | null> {
     await this.lista;
-    return this.sesion() !== null && this.rol() === 'admin';
+    return this.sesion() ? this.rol() : null;
   }
 
-  async iniciarSesion(correo: string, clave: string): Promise<void> {
+  rutaInicio(rol: Rol): string {
+    return INICIO_POR_ROL[rol];
+  }
+
+  async iniciarSesion(correo: string, clave: string): Promise<Rol> {
     const { data, error } = await this.db.auth.signInWithPassword({
       email: correo,
       password: clave,
@@ -35,34 +48,41 @@ export class SesionService {
     if (error) throw new Error(traducirError(error));
 
     this.sesion.set(data.session);
-    const rol = await this.leerRol(data.user.id);
-    if (rol !== 'admin') {
+    const perfil = await this.leerPerfil(data.user.id);
+    if (!perfil) {
       await this.cerrarSesion();
-      throw new Error('Esta cuenta no tiene acceso al panel.');
+      throw new Error('Esta cuenta no tiene acceso. Pídele al administrador que la active.');
     }
-    this.rol.set(rol);
+    this.rol.set(perfil.rol);
+    this.nombre.set(perfil.nombre);
+    return perfil.rol;
   }
 
   async cerrarSesion(): Promise<void> {
     await this.db.auth.signOut();
     this.sesion.set(null);
     this.rol.set(null);
+    this.nombre.set(null);
   }
 
   private async cargar(): Promise<void> {
     const { data } = await this.db.auth.getSession();
     this.sesion.set(data.session);
-    if (data.session) this.rol.set(await this.leerRol(data.session.user.id));
+    if (data.session) {
+      const perfil = await this.leerPerfil(data.session.user.id);
+      this.rol.set(perfil?.rol ?? null);
+      this.nombre.set(perfil?.nombre ?? null);
+    }
   }
 
-  private async leerRol(idUsuario: string): Promise<Rol | null> {
+  private async leerPerfil(idUsuario: string): Promise<{ rol: Rol; nombre: string | null } | null> {
     const { data, error } = await this.db
       .from('perfiles')
-      .select('rol')
+      .select('rol, nombre')
       .eq('user_id', idUsuario)
       .maybeSingle();
-    if (error) return null;
-    return (data?.rol as Rol | undefined) ?? null;
+    if (error || !data) return null;
+    return { rol: data.rol as Rol, nombre: data.nombre };
   }
 }
 

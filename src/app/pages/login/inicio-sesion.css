@@ -1,8 +1,15 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(90, 180, 245, 0.35) 0%, transparent 460px),
+    linear-gradient(180deg, var(--azul-suave) 0%, var(--fondo) 55%);
+}
+
 .login {
   max-width: 420px;
   margin: 0 auto;
-  min-height: 100dvh;
-  padding: calc(var(--seguro-arriba) + 12px) 16px calc(var(--seguro-abajo) + 24px);
+  padding: calc(var(--seguro-arriba) + 12px) 20px calc(var(--seguro-abajo) + 24px);
 }
 
 .volver {
@@ -24,32 +31,76 @@
   stroke-linejoin: round;
 }
 
+.cabecera {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin: 12px 0 24px;
+}
+
+.logo {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 22px rgba(30, 143, 225, 0.25));
+}
+
 h1 {
-  margin: 28px 4px 4px;
-  font-size: 34px;
+  margin: 12px 0 4px;
+  font-size: 30px;
   font-weight: 700;
   letter-spacing: -0.03em;
 }
 
 p {
-  margin: 0 4px 24px;
+  margin: 0;
+  font-size: 15px;
+  color: var(--texto-secundario);
+}
+
+.tarjeta-login {
+  padding: 20px 16px;
+  border-radius: var(--radio-lg);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border: 0.5px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
 }
 
 .campos {
-  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.campo-etiqueta {
-  width: 64px;
-  flex: none;
-  font-weight: 500;
+.campo-login {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 14px;
+  border-radius: 14px;
+  background: rgba(118, 118, 128, 0.1);
+  cursor: text;
+  transition: box-shadow 0.15s, background 0.15s;
 }
 
-.ver-clave {
+.campo-login:focus-within {
+  background: var(--blanco);
+  box-shadow: 0 0 0 2px var(--azul);
+}
+
+.campo-login svg {
   flex: none;
-  font-size: 15px;
-  color: var(--azul-fuerte);
-  padding: 4px 0 4px 8px;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: var(--texto-secundario);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 input {
@@ -58,5 +109,27 @@ input {
   border: none;
   outline: none;
   background: transparent;
-  font-size: 16px;
+  font-size: 17px;
+}
+
+input::placeholder {
+  color: var(--texto-terciario);
+}
+
+.ver-clave {
+  flex: none;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--azul-fuerte);
+  padding: 4px 0 4px 8px;
+}
+
+.aviso-error {
+  margin-top: 12px;
+}
+
+.boton-entrar {
+  margin-top: 16px;
+  height: 54px;
+  border-radius: 14px;
 }

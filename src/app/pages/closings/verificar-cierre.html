@@ -1,0 +1,148 @@
+<header class="hoja-barra">
+  <button type="button" class="boton-texto" (click)="cerrar.emit()">Cerrar</button>
+  <h2>Cierre · {{ cierre().fecha | fechaCorta }}</h2>
+  <span></span>
+</header>
+
+<div class="tarjeta" style="display: flex; align-items: center; gap: 12px">
+  <span class="fila-cuerpo">
+    <span class="fila-titulo" style="display: block">
+      Cerrado por {{ cierre().cerradoPorNombre || 'el administrador' }}
+    </span>
+    @if (cierre().nota) {
+      <span class="fila-subtitulo" style="display: block; white-space: normal">“{{ cierre().nota }}”</span>
+    }
+  </span>
+  @if (verificado()) {
+    <span class="insignia insignia-verde">Verificado</span>
+  } @else {
+    <span class="insignia insignia-naranja">Por verificar</span>
+  }
+</div>
+
+<div class="tarjeta tarjeta-oscura" style="margin-top: 12px">
+  <div class="dato-etiqueta">Ventas registradas</div>
+  <div class="dato-valor-grande">{{ cierre().totalVentas | moneda }}</div>
+  <div class="dato-nota" style="color: var(--azul)">
+    {{ cierre().vasosVendidos }} vasos · Efectivo {{ cierre().efectivo | moneda }} · Nequi {{ cierre().nequi | moneda }}
+  </div>
+</div>
+
+@if (!cargando()) {
+  <div class="aviso-cuadre" [class.bien]="cuadra()">
+    {{ cuadra() ? 'Todo cuadra' : 'Hay diferencias, revisa abajo' }}
+  </div>
+}
+
+<h3 class="etiqueta-seccion">Efectivo</h3>
+<div class="lista">
+  <div class="fila">
+    <span class="fila-cuerpo texto-secundario">Registrado en efectivo</span>
+    <span>{{ cierre().efectivo | moneda }}</span>
+  </div>
+  <div class="fila">
+    <span class="fila-cuerpo texto-secundario">Ella contó</span>
+    @if (cierre().efectivoContado !== null) {
+      <span>{{ cierre().efectivoContado | moneda }}</span>
+    } @else {
+      <span class="texto-secundario">No lo escribió</span>
+    }
+  </div>
+  @if (diferenciaEfectivo() !== null) {
+    <div class="fila">
+      <span class="fila-cuerpo">Diferencia</span>
+      <strong [class.texto-verde]="diferenciaEfectivo() === 0" [class.texto-rojo]="diferenciaEfectivo() !== 0">
+        {{ diferenciaEfectivo()! > 0 ? '+' : '' }}{{ diferenciaEfectivo() | moneda }}
+      </strong>
+    </div>
+  }
+</div>
+
+<h3 class="etiqueta-seccion">Vasos</h3>
+<div class="lista">
+  @if (cargando()) {
+    <div class="vacio">Cargando…</div>
+  } @else {
+    @for (fila of filas(); track fila.productoId) {
+      <div class="fila">
+        <div class="fila-cuerpo">
+          <div class="fila-titulo">{{ fila.nombre }}</div>
+          <div class="fila-subtitulo">
+            Tenía {{ fila.tenia }}
+            @if (fila.arrastre) {
+              ({{ fila.arrastre }} de antes + {{ fila.cantidad }} bajados)
+            }
+            · sobran {{ fila.sobran }}
+          </div>
+          <div class="fila-subtitulo">
+            Por conteo {{ fila.porConteo }} · registradas {{ fila.vendidos }}
+          </div>
+        </div>
+        @if (fila.diferencia === 0) {
+          <span class="insignia insignia-verde">Cuadra</span>
+        } @else if (fila.diferencia > 0) {
+          <span class="insignia insignia-roja">Faltan {{ fila.diferencia }}</span>
+        } @else {
+          <span class="insignia insignia-naranja">Sobran {{ -fila.diferencia }}</span>
+        }
+      </div>
+    } @empty {
+      <div class="vacio">No hubo vasos este día.</div>
+    }
+  }
+</div>
+<p class="nota-formulario">
+  "Faltan" = vasos que salieron pero no se registraron como venta.
+</p>
+
+@if (jugosUsados().length) {
+  <h3 class="etiqueta-seccion">Jugos usados</h3>
+  <div class="lista">
+    @for (jugo of jugosUsados(); track jugo.insumoId) {
+      <div class="fila">
+        <span class="fila-cuerpo">{{ jugo.nombre }}</span>
+        <span>{{ jugo.usadosHoy }} {{ jugo.usadosHoy === 1 ? 'bolsa' : 'bolsas' }}</span>
+      </div>
+    }
+  </div>
+}
+
+<h3 class="etiqueta-seccion">Empleada</h3>
+<div class="lista">
+  <label class="fila campo" for="verificar-sueldo">
+    <span class="campo-etiqueta">Sueldo del día</span>
+    <app-campo-moneda idCampo="verificar-sueldo" [(valor)]="sueldo" />
+  </label>
+  <div class="fila">
+    <span class="fila-cuerpo">Debes tener</span>
+    <strong>{{ debesTener() | moneda }}</strong>
+  </div>
+</div>
+<p class="nota-formulario">Al verificar, el sueldo de la empleada se descuenta de la caja.</p>
+
+@if (error()) {
+  <div class="aviso-error" role="alert">{{ error() }}</div>
+}
+
+<button
+  type="button"
+  class="boton boton-primario boton-bloque"
+  style="margin-top: 20px"
+  [disabled]="guardando() || cargando()"
+  (click)="verificar()"
+>
+  {{ guardando() ? 'Guardando…' : verificado() ? 'Guardar sueldo' : 'Verificar cierre' }}
+</button>
+
+<div style="margin-top: 12px">
+  <button
+    type="button"
+    class="boton-peligro"
+    [class.confirmar]="confirmandoReabrir()"
+    [disabled]="guardando()"
+    (click)="reabrir()"
+  >
+    {{ confirmandoReabrir() ? 'Toca de nuevo para reabrir' : 'Reabrir para que lo corrija' }}
+  </button>
+  <p class="nota-formulario">Borra este cierre y ella puede volver a cerrar el día.</p>
+</div>

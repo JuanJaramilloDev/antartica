@@ -2,36 +2,34 @@ import { Injectable, inject } from '@angular/core';
 import { VasosDelDia } from '../models/modelos';
 import { SupabaseService } from './supabase';
 
+interface FilaVasos {
+  producto_id: string;
+  nombre: string;
+  precio_venta: number;
+  unidades_paquete: number | null;
+  arrastre: number;
+  bajados: number;
+  sobrantes: number | null;
+  paquetes_inventario: number | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class VasosService {
   private readonly db = inject(SupabaseService).cliente;
 
   async delDia(fecha: string): Promise<VasosDelDia[]> {
-    const [productos, registros] = await Promise.all([
-      this.db
-        .from('productos')
-        .select('id, nombre, precio_venta, unidades_paquete, insumos(cantidad)')
-        .eq('activo', true)
-        .order('orden')
-        .order('nombre'),
-      this.db.from('vasos_dia').select('producto_id, cantidad, sobrantes').eq('fecha', fecha),
-    ]);
-    if (productos.error) throw productos.error;
-    if (registros.error) throw registros.error;
-
-    const porProducto = new Map(registros.data.map((r) => [r.producto_id, r]));
-    return productos.data.map((p) => {
-      const insumo = p.insumos as unknown as { cantidad: number } | null;
-      return {
-        productoId: p.id,
-        nombre: p.nombre,
-        precioVenta: Number(p.precio_venta),
-        unidadesPaquete: p.unidades_paquete,
-        cantidad: porProducto.get(p.id)?.cantidad ?? 0,
-        sobrantes: porProducto.get(p.id)?.sobrantes ?? null,
-        paquetesEnInventario: insumo ? Number(insumo.cantidad) : null,
-      };
-    });
+    const { data, error } = await this.db.rpc('vasos_del_dia', { p_fecha: fecha });
+    if (error) throw error;
+    return (data as FilaVasos[]).map((f) => ({
+      productoId: f.producto_id,
+      nombre: f.nombre,
+      precioVenta: Number(f.precio_venta),
+      unidadesPaquete: f.unidades_paquete,
+      arrastre: Number(f.arrastre),
+      cantidad: Number(f.bajados),
+      sobrantes: f.sobrantes === null ? null : Number(f.sobrantes),
+      paquetesEnInventario: f.paquetes_inventario === null ? null : Number(f.paquetes_inventario),
+    }));
   }
 
   async sumar(productoId: string, cantidad: number, fecha: string): Promise<number> {

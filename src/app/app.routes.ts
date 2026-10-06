@@ -1,10 +1,11 @@
 import { Routes } from '@angular/router';
-import { soloAdmin, soloSinSesion } from './guards/acceso';
+import { soloAdmin, soloEmpleada, soloSinSesion } from './guards/acceso';
 
 export const routes: Routes = [
   {
     path: '',
     title: 'Antártica',
+    canActivate: [soloSinSesion],
     loadComponent: () => import('./pages/welcome/bienvenida').then((m) => m.Bienvenida),
   },
   {
@@ -12,6 +13,34 @@ export const routes: Routes = [
     title: 'Iniciar sesión · Antártica',
     canActivate: [soloSinSesion],
     loadComponent: () => import('./pages/login/inicio-sesion').then((m) => m.InicioSesion),
+  },
+  {
+    path: 'empleada',
+    canActivate: [soloEmpleada],
+    loadComponent: () => import('./layout/empleada').then((m) => m.Empleada),
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'vender' },
+      {
+        path: 'vender',
+        title: 'Vender · Antártica',
+        loadComponent: () => import('./pages/staff/vender').then((m) => m.Vender),
+      },
+      {
+        path: 'ventas',
+        title: 'Mis ventas · Antártica',
+        loadComponent: () => import('./pages/staff/mis-ventas').then((m) => m.MisVentas),
+      },
+      {
+        path: 'diario',
+        title: 'Diario · Antártica',
+        loadComponent: () => import('./pages/staff/diario').then((m) => m.Diario),
+      },
+      {
+        path: 'cuenta',
+        title: 'Cuenta · Antártica',
+        loadComponent: () => import('./pages/staff/cuenta').then((m) => m.Cuenta),
+      },
+    ],
   },
   {
     path: 'panel',

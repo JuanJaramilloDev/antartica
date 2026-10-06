@@ -7,7 +7,13 @@ export class SupabaseService {
   readonly configurado =
     !entorno.supabaseUrl.includes('TU-PROYECTO') && !entorno.supabaseAnonKey.startsWith('TU-');
 
-  readonly cliente: SupabaseClient = createClient(entorno.supabaseUrl, entorno.supabaseAnonKey);
+  readonly cliente: SupabaseClient = createClient(entorno.supabaseUrl, entorno.supabaseAnonKey, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: false,
+    },
+  });
 }
 
 export function mensajeDeError(error: unknown): string {

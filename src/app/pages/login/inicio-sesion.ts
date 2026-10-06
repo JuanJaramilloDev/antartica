@@ -29,8 +29,8 @@ export class InicioSesion {
     this.entrando.set(true);
     this.error.set(null);
     try {
-      await this.sesion.iniciarSesion(this.correo().trim(), this.clave());
-      await this.router.navigateByUrl('/panel');
+      const rol = await this.sesion.iniciarSesion(this.correo().trim(), this.clave());
+      await this.router.navigateByUrl(this.sesion.rutaInicio(rol));
     } catch (error) {
       this.error.set(error instanceof Error ? error.message : 'No se pudo iniciar sesión.');
     } finally {

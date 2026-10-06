@@ -11,11 +11,28 @@
   } @else if (cargando()) {
     <h2 class="etiqueta-seccion">Cargando…</h2>
   } @else {
-    @if (cierreHoy(); as hoy) {
+    @if (porVerificar().length) {
+      <h2 class="etiqueta-seccion" style="margin-top: 0">Por verificar ({{ porVerificar().length }})</h2>
+      <div class="lista">
+        @for (cierre of porVerificar(); track cierre.id) {
+          <button class="fila" (click)="abrirCierre(cierre)">
+            <span class="fila-icono" style="background: rgba(245, 159, 11, 0.14); color: #b97400">!</span>
+            <span class="fila-cuerpo">
+              <span class="fila-titulo" style="display: block">{{ cierre.fecha | fechaCorta }}</span>
+              <span class="fila-subtitulo" style="display: block">
+                {{ cierre.cerradoPorNombre || 'Empleada' }} · Ventas {{ cierre.totalVentas | moneda }}
+              </span>
+            </span>
+            <span class="insignia insignia-naranja">Revisar</span>
+            <svg class="chevron" viewBox="0 0 8 14" aria-hidden="true"><path d="M1 1l6 6-6 6" /></svg>
+          </button>
+        }
+      </div>
+    } @else if (cierreHoy(); as hoy) {
       <button type="button" class="tarjeta tarjeta-oscura tarjeta-boton" (click)="abrirCierre(hoy)">
         <span class="dato-etiqueta" style="display: flex; justify-content: space-between">
           Hoy debes tener
-          <span style="color: var(--azul)">Editar ›</span>
+          <span style="color: var(--azul)">Ver ›</span>
         </span>
         <span class="dato-valor-grande" style="display: block">{{ hoy.totalFinal | moneda }}</span>
         <span class="dato-nota" style="display: block; color: var(--azul)">
@@ -24,13 +41,10 @@
       </button>
     } @else {
       <div class="tarjeta">
-        <div class="fila-titulo">Aún no has cerrado el día</div>
-        <p class="texto-secundario" style="margin: 4px 0 12px; font-size: 14px">
-          Escribe los vasos que sobraron y te digo cuánto debes tener.
+        <div class="fila-titulo">Hoy aún no se ha cerrado el día</div>
+        <p class="texto-secundario" style="margin: 4px 0 0; font-size: 14px">
+          La empleada cierra desde su cuenta y aquí te aparece para verificarlo.
         </p>
-        <button type="button" class="boton boton-primario boton-bloque" (click)="abrirCierre(null)">
-          Cerrar el día
-        </button>
       </div>
     }
 
@@ -53,10 +67,7 @@
       </div>
     </div>
 
-    <h2 class="etiqueta-seccion">
-      Días cerrados
-      <a href="" (click)="$event.preventDefault(); abrirCierre(null)">Cerrar otro día</a>
-    </h2>
+    <h2 class="etiqueta-seccion">Días cerrados</h2>
     <div class="lista lista-desplazable">
       @for (cierre of cierres(); track cierre.id) {
         <button class="fila" (click)="abrirCierre(cierre)">
@@ -68,7 +79,11 @@
           </span>
           <span class="fila-final">
             <span class="fila-titulo" style="display: block">{{ cierre.totalFinal | moneda }}</span>
-            <span class="fila-subtitulo" style="display: block">debías tener</span>
+            @if (cierre.estado === 'pendiente') {
+              <span class="insignia insignia-naranja">Por verificar</span>
+            } @else {
+              <span class="fila-subtitulo" style="display: block">debías tener</span>
+            }
           </span>
           <svg class="chevron" viewBox="0 0 8 14" aria-hidden="true"><path d="M1 1l6 6-6 6" /></svg>
         </button>
@@ -128,12 +143,14 @@
 <app-hoja [abierta]="hoja() !== null" etiqueta="Cierres" (cerrar)="cerrarHoja()">
   @switch (hoja()) {
     @case ('cierre') {
-      <app-formulario-cierre
-        [cierre]="cierreEnEdicion()"
-        [sueldoPorDefecto]="ajustes().sueldoEmpleadaDia"
-        (guardado)="alGuardarCierre()"
-        (cancelar)="cerrarHoja()"
-      />
+      @if (cierreEnEdicion(); as cierre) {
+        <app-verificar-cierre
+          [cierre]="cierre"
+          [sueldoPorDefecto]="ajustes().sueldoEmpleadaDia"
+          (cambiado)="alGuardarCierre()"
+          (cerrar)="cerrarHoja()"
+        />
+      }
     }
     @case ('mes') {
       @if (mesSeleccionado(); as mes) {

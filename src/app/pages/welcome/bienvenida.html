@@ -1,17 +1,13 @@
 <section class="bienvenida">
   <div class="centro">
-    <div class="logo" aria-hidden="true">
-      <svg viewBox="0 0 24 24">
-        <path d="M12 2v20M4 6.5l16 11M20 6.5l-16 11" />
-        <path d="M9.5 3.5L12 6l2.5-2.5M9.5 20.5L12 18l2.5 2.5" />
-      </svg>
-    </div>
-    <h1>Antártica</h1>
-    <p>Ventas, productos, inventario y préstamos en un solo lugar.</p>
+    <img class="logo" src="icons/logo-320.webp" alt="Antártica Drinks" width="200" height="200" />
+    <p>Ventas, productos, inventario y todo en un solo lugar.</p>
   </div>
 
   <div class="acciones">
-    <button type="button" class="boton boton-primario boton-bloque" disabled>Ingresar al panel</button>
-    <a class="enlace" routerLink="/login">Iniciar sesión</a>
+    <a class="boton boton-primario boton-bloque boton-entrar" routerLink="/login">
+      Iniciar sesión
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+    </a>
   </div>
 </section>

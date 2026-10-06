@@ -1,0 +1,108 @@
+<div class="pagina">
+  <app-encabezado titulo="Mis ventas" [subtitulo]="hoy" />
+
+  <div class="tarjeta tarjeta-oscura">
+    <div class="dato-etiqueta">Vendido hoy</div>
+    <div class="dato-valor-grande">{{ total() | moneda }}</div>
+    <div class="dato-nota" style="color: var(--azul)">
+      {{ pedidos().length }} {{ pedidos().length === 1 ? 'venta' : 'ventas' }} · {{ vasos() }} vasos
+    </div>
+  </div>
+
+  <div class="rejilla" style="margin-top: 12px">
+    <div class="tarjeta">
+      <div class="dato-etiqueta">Efectivo</div>
+      <div class="dato-valor">{{ efectivo() | moneda }}</div>
+    </div>
+    <div class="tarjeta">
+      <div class="dato-etiqueta">Nequi</div>
+      <div class="dato-valor">{{ nequi() | moneda }}</div>
+    </div>
+  </div>
+
+  @if (!cargando()) {
+    @if (cierre(); as c) {
+      <div class="tarjeta estado-cierre" [class.verificado]="verificado()">
+        <div class="fila-titulo">
+          {{ verificado() ? 'Día cerrado y verificado ✓' : 'Cierre enviado' }}
+        </div>
+        <div class="fila-subtitulo" style="white-space: normal">
+          @if (verificado()) {
+            El administrador ya revisó el día. No se pueden hacer más cambios.
+          } @else {
+            Esperando que el administrador lo verifique.
+          }
+        </div>
+        @if (!verificado()) {
+          <button
+            type="button"
+            class="boton-pequeno"
+            style="margin-top: 10px"
+            (click)="cerrando.set(true)"
+          >
+            Corregir cierre
+          </button>
+        }
+      </div>
+    } @else {
+      <button
+        type="button"
+        class="boton boton-primario boton-bloque"
+        style="margin-top: 12px; height: 54px"
+        (click)="cerrando.set(true)"
+      >
+        Cerrar el día
+      </button>
+    }
+  }
+
+  @if (error()) {
+    <div class="aviso-error" role="alert">
+      {{ error() }}
+      <button class="boton-texto" style="display: block; padding-bottom: 0" (click)="cargar()">
+        Reintentar
+      </button>
+    </div>
+  }
+
+  <h2 class="etiqueta-seccion">{{ cargando() ? 'Cargando…' : 'Ventas de hoy' }}</h2>
+  @if (!cargando()) {
+    <div class="lista">
+      @for (pedido of pedidos(); track pedido.id) {
+        <div class="fila">
+          <div class="fila-cuerpo">
+            <div class="fila-titulo">{{ pedido.total | moneda }}</div>
+            <div class="fila-subtitulo">{{ hora(pedido) }} · {{ pedido.metodoPago }}</div>
+            <div class="fila-subtitulo">{{ detalle(pedido) }}</div>
+          </div>
+          @if (!verificado()) {
+            <button
+              type="button"
+              class="boton-pequeno peligro"
+              [disabled]="ocupado()"
+              (click)="deshacer(pedido)"
+            >
+              {{ borrandoId() === pedido.id ? '¿Deshacer?' : 'Deshacer' }}
+            </button>
+          }
+        </div>
+      } @empty {
+        <div class="vacio">Aún no has registrado ventas hoy.</div>
+      }
+    </div>
+    @if (!verificado()) {
+      <p class="nota-formulario">Si te equivocaste, toca Deshacer dos veces. Solo se pueden deshacer ventas de hoy.</p>
+    }
+  }
+</div>
+
+<app-hoja [abierta]="cerrando()" etiqueta="Cerrar el día" (cerrar)="cerrando.set(false)">
+  @if (cerrando()) {
+    <app-cierre-empleada
+      [pedidos]="pedidos()"
+      [cierre]="cierre()"
+      (enviado)="alEnviarCierre()"
+      (cancelar)="cerrando.set(false)"
+    />
+  }
+</app-hoja>

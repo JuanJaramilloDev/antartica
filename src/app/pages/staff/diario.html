@@ -1,0 +1,113 @@
+<div class="pagina">
+  <app-encabezado titulo="Diario" [subtitulo]="hoy" />
+
+  @if (error()) {
+    <div class="aviso-error" role="alert" style="margin-bottom: 12px">
+      {{ error() }}
+      <button class="boton-texto" style="display: block; padding-bottom: 0" (click)="cargar()">
+        Reintentar
+      </button>
+    </div>
+  }
+
+  @if (cargando()) {
+    <h2 class="etiqueta-seccion">Cargando…</h2>
+  } @else {
+    <h2 class="etiqueta-seccion">Vasos</h2>
+    <div class="vasos">
+      @for (item of vasosConPaquete(); track item.productoId) {
+        <div class="tarjeta vaso">
+          <div class="vaso-info">
+            <div class="vaso-nombre">{{ item.nombre }}</div>
+            <div class="vaso-detalle">
+              @if (item.cantidad) {
+                Bajaste {{ item.cantidad }} · {{ paquetes(item) }}
+              } @else {
+                Aún no has bajado
+              }
+            </div>
+            @if (item.arrastre) {
+              <div class="vaso-detalle texto-verde">Quedaron {{ item.arrastre }} del último cierre</div>
+            }
+            @if (item.paquetesEnInventario !== null) {
+              <div class="vaso-detalle" [class.texto-rojo]="item.paquetesEnInventario < 1">
+                Quedan {{ item.paquetesEnInventario }} paquetes
+              </div>
+            }
+          </div>
+          <div class="vaso-acciones">
+            <button
+              type="button"
+              class="boton-pequeno"
+              [disabled]="ocupado() !== null || item.cantidad < item.unidadesPaquete!"
+              [attr.aria-label]="'Quitar un paquete de ' + item.nombre"
+              (click)="cambiarVasos(item, -1)"
+            >
+              −
+            </button>
+            <button
+              type="button"
+              class="boton boton-azul agregar"
+              [disabled]="ocupado() !== null"
+              (click)="cambiarVasos(item, 1)"
+            >
+              {{ ocupado() === item.productoId ? '…' : '+ ' + item.unidadesPaquete }}
+            </button>
+          </div>
+        </div>
+      } @empty {
+        <div class="tarjeta vacio">No hay vasos configurados por paquete.</div>
+      }
+    </div>
+
+    <h2 class="etiqueta-seccion">
+      Jugos
+      @if (bolsasHoy()) {
+        <span class="texto-secundario" style="text-transform: none; letter-spacing: 0">
+          {{ bolsasHoy() }} {{ bolsasHoy() === 1 ? 'bolsa usada' : 'bolsas usadas' }}
+        </span>
+      }
+    </h2>
+    <div class="jugos">
+      @for (jugo of jugos(); track jugo.insumoId) {
+        <div class="jugo" [class.usado]="jugo.usadosHoy > 0" [class.agotado]="jugo.enInventario < 1">
+          <button
+            type="button"
+            class="jugo-boton"
+            [disabled]="ocupado() !== null || jugo.enInventario < 1"
+            (click)="cambiarJugo(jugo, 1)"
+          >
+            <span class="jugo-color" [style.background]="color(jugo.nombre)"></span>
+            <span class="jugo-nombre">{{ jugo.nombre }}</span>
+            <span class="jugo-stock">
+              @if (jugo.enInventario < 1) {
+                Agotado
+              } @else {
+                Quedan {{ jugo.enInventario }}
+              }
+            </span>
+            @if (jugo.usadosHoy) {
+              <span class="jugo-usados">{{ jugo.usadosHoy }}</span>
+            }
+          </button>
+          @if (jugo.usadosHoy) {
+            <button
+              type="button"
+              class="jugo-quitar"
+              [disabled]="ocupado() !== null"
+              [attr.aria-label]="'Quitar una bolsa de ' + jugo.nombre"
+              (click)="cambiarJugo(jugo, -1)"
+            >
+              − Quitar 1
+            </button>
+          }
+        </div>
+      } @empty {
+        <div class="tarjeta vacio" style="grid-column: 1 / -1">No hay jugos en el inventario.</div>
+      }
+    </div>
+    <p class="nota-formulario">
+      Toca un color cada vez que uses una bolsa.
+    </p>
+  }
+</div>

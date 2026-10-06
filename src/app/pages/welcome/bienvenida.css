@@ -1,6 +1,8 @@
 :host {
   display: block;
-  background: radial-gradient(circle at 50% 30%, var(--azul-suave) 0%, transparent 420px);
+  background:
+    radial-gradient(circle at 50% 28%, rgba(90, 180, 245, 0.28) 0%, transparent 420px),
+    linear-gradient(180deg, var(--blanco) 0%, var(--fondo) 100%);
 }
 
 .bienvenida {
@@ -23,34 +25,15 @@
 }
 
 .logo {
-  width: 88px;
-  height: 88px;
-  border-radius: 24px;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(160deg, #8fd0ff, var(--azul-fuerte));
-  box-shadow: 0 16px 40px rgba(30, 143, 225, 0.3);
-}
-
-.logo svg {
-  width: 44px;
-  height: 44px;
-  fill: none;
-  stroke: var(--blanco);
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-h1 {
-  margin: 28px 0 8px;
-  font-size: 36px;
-  font-weight: 700;
-  letter-spacing: -0.03em;
+  display: block;
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 28px rgba(30, 143, 225, 0.25));
 }
 
 p {
-  margin: 0;
+  margin: 20px 0 0;
   max-width: 280px;
   font-size: 17px;
   color: var(--texto-secundario);
@@ -60,12 +43,20 @@ p {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
 }
 
-.enlace {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--azul-fuerte);
-  padding: 6px 12px;
+.boton-entrar {
+  height: 56px;
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(11, 11, 12, 0.18);
+}
+
+.boton-entrar svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }

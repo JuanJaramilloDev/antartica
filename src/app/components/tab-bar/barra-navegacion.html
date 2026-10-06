@@ -1,5 +1,5 @@
 <nav class="barra" aria-label="Navegación principal">
-  @for (item of items; track item.ruta) {
+  @for (item of items(); track item.ruta) {
     <a
       class="item"
       [routerLink]="item.ruta"
@@ -32,6 +32,23 @@
             <path d="M4 6h16" />
             <path d="M4 12h16" />
             <path d="M4 18h16" />
+          }
+          @case ('vender') {
+            <path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8z" />
+            <path d="M9 8V6.5a3 3 0 0 1 6 0V8" />
+          }
+          @case ('historial') {
+            <path d="M6 3h12v18l-3-2-3 2-3-2-3 2z" />
+            <path d="M9 8h6M9 12h6" />
+          }
+          @case ('diario') {
+            <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" />
+            <path d="M3.5 10h17M8 3v4M16 3v4" />
+            <path d="M8 14h3M8 17h6" />
+          }
+          @case ('cuenta') {
+            <circle cx="12" cy="8.5" r="3.5" />
+            <path d="M5 20a7 7 0 0 1 14 0" />
           }
         }
       </svg>

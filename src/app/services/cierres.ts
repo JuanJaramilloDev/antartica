@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { Ajustes, CategoriaGasto, CierreDia, Gasto, ResumenMes } from '../models/modelos';
+import { Ajustes, CategoriaGasto, CierreDia, EstadoCierre, Gasto, ResumenMes } from '../models/modelos';
+import { fechaIso } from '../utils/fechas';
 import { SupabaseService } from './supabase';
 
 interface FilaCierre {
@@ -11,6 +12,13 @@ interface FilaCierre {
   costo: number;
   total_final: number;
   ganancia: number;
+  estado: EstadoCierre;
+  efectivo: number;
+  nequi: number;
+  efectivo_contado: number | null;
+  nota: string | null;
+  cerrado_por_nombre: string | null;
+  verificado_en: string | null;
 }
 
 interface FilaMes {
@@ -48,6 +56,13 @@ function aCierre(f: FilaCierre): CierreDia {
     costo: Number(f.costo),
     totalFinal: Number(f.total_final),
     ganancia: Number(f.ganancia),
+    estado: f.estado,
+    efectivo: Number(f.efectivo),
+    nequi: Number(f.nequi),
+    efectivoContado: f.efectivo_contado === null ? null : Number(f.efectivo_contado),
+    nota: f.nota,
+    cerradoPorNombre: f.cerrado_por_nombre,
+    verificadoEn: f.verificado_en,
   };
 }
 
@@ -81,7 +96,7 @@ function aGasto(f: FilaGasto): Gasto {
 }
 
 const COLUMNAS_CIERRE =
-  'id, fecha, sueldo_empleada, vasos_vendidos, total_ventas, costo, total_final, ganancia';
+  'id, fecha, sueldo_empleada, vasos_vendidos, total_ventas, costo, total_final, ganancia, estado, efectivo, nequi, efectivo_contado, nota, cerrado_por_nombre, verificado_en';
 
 @Injectable({ providedIn: 'root' })
 export class CierresService {
@@ -133,21 +148,39 @@ export class CierresService {
     return (data as FilaCierre[]).map(aCierre);
   }
 
-  async cerrarDia(
-    fecha: string,
+  async cierreDeHoy(): Promise<CierreDia | null> {
+    const { data, error } = await this.db
+      .from('cierres_resumen')
+      .select(COLUMNAS_CIERRE)
+      .eq('fecha', fechaIso())
+      .maybeSingle();
+    if (error) throw error;
+    return data ? aCierre(data as FilaCierre) : null;
+  }
+
+  async cerrarDiaEmpleada(
     sobrantes: Record<string, number>,
-    sueldoEmpleada: number,
+    efectivoContado: number | null,
+    nota: string,
   ): Promise<void> {
-    const { error } = await this.db.rpc('cerrar_dia', {
-      p_fecha: fecha,
+    const { error } = await this.db.rpc('cerrar_dia_empleada', {
       p_sobrantes: sobrantes,
+      p_efectivo_contado: efectivoContado,
+      p_nota: nota,
+    });
+    if (error) throw error;
+  }
+
+  async verificar(fecha: string, sueldoEmpleada: number): Promise<void> {
+    const { error } = await this.db.rpc('verificar_cierre', {
+      p_fecha: fecha,
       p_sueldo_empleada: sueldoEmpleada,
     });
     if (error) throw error;
   }
 
   async reabrir(fecha: string): Promise<void> {
-    const { error } = await this.db.from('cierres_dia').delete().eq('fecha', fecha);
+    const { error } = await this.db.rpc('reabrir_cierre', { p_fecha: fecha });
     if (error) throw error;
   }
 

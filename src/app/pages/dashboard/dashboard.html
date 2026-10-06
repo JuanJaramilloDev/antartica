@@ -48,6 +48,9 @@
               } @else {
                 Aún no has bajado vasos
               }
+              @if (item.arrastre) {
+                <span class="texto-verde">· {{ item.arrastre }} de antes</span>
+              }
               @if (item.paquetesEnInventario !== null) {
                 <span [class.texto-rojo]="item.paquetesEnInventario < 1">
                   · Quedan {{ item.paquetesEnInventario }} en inventario
@@ -70,8 +73,8 @@
       }
     </div>
     <p class="nota-formulario">Toca "+" para sumar un paquete, o el nombre para poner la cantidad exacta.</p>
-    <a class="boton boton-primario boton-bloque" style="margin-top: 12px" routerLink="/panel/mas/cierres">
-      Cerrar el día
+    <a class="boton boton-bloque" style="margin-top: 12px; background: var(--azul-suave); color: var(--azul-fuerte)" routerLink="/panel/mas/cierres">
+      Ver cierres
     </a>
   }
 

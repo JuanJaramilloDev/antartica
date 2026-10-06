@@ -10,7 +10,7 @@ import { fechaIso, nombreMes } from '../../utils/fechas';
 import { AjustesSueldos } from './ajustes-sueldos';
 import { DetalleMes } from './detalle-mes';
 import { DetalleSemestre, Semestre, mesVacio } from './detalle-semestre';
-import { FormularioCierre } from './formulario-cierre';
+import { VerificarCierre } from './verificar-cierre';
 
 interface FilaSemestre extends Semestre {
   ventas: number;
@@ -24,7 +24,7 @@ interface FilaSemestre extends Semestre {
   imports: [
     Encabezado,
     Hoja,
-    FormularioCierre,
+    VerificarCierre,
     DetalleMes,
     DetalleSemestre,
     AjustesSueldos,
@@ -51,6 +51,9 @@ export class Cierres {
   protected readonly semestreSeleccionado = signal<Semestre | null>(null);
 
   protected readonly cierreHoy = computed(() => this.cierres().find((c) => c.fecha === this.hoy));
+  protected readonly porVerificar = computed(() =>
+    this.cierres().filter((c) => c.estado === 'pendiente'),
+  );
 
   protected readonly semestres = computed<FilaSemestre[]>(() => {
     const grupos = new Map<string, FilaSemestre>();
@@ -110,7 +113,7 @@ export class Cierres {
     }
   }
 
-  protected abrirCierre(cierre: CierreDia | null): void {
+  protected abrirCierre(cierre: CierreDia): void {
     this.cierreEnEdicion.set(cierre);
     this.hoja.set('cierre');
   }

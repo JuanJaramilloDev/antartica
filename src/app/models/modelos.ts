@@ -67,6 +67,7 @@ export interface VasosDelDia {
   nombre: string;
   precioVenta: number;
   unidadesPaquete: number | null;
+  arrastre: number;
   cantidad: number;
   sobrantes: number | null;
   paquetesEnInventario: number | null;
@@ -97,7 +98,16 @@ export interface CierreDia {
   costo: number;
   totalFinal: number;
   ganancia: number;
+  estado: EstadoCierre;
+  efectivo: number;
+  nequi: number;
+  efectivoContado: number | null;
+  nota: string | null;
+  cerradoPorNombre: string | null;
+  verificadoEn: string | null;
 }
+
+export type EstadoCierre = 'pendiente' | 'verificado';
 
 export interface ResumenMes {
   mes: string;
@@ -120,6 +130,36 @@ export interface Ingreso {
   fecha: string;
   descripcion: string;
   monto: number;
+}
+
+export interface JugoDelDia {
+  insumoId: string;
+  nombre: string;
+  enInventario: number;
+  usadosHoy: number;
+}
+
+export type MetodoPago = 'Efectivo' | 'Nequi';
+
+export interface ProductoVenta {
+  id: string;
+  nombre: string;
+  precioVenta: number;
+}
+
+export interface ItemPedido {
+  nombre: string;
+  cantidad: number;
+  total: number;
+}
+
+export interface Pedido {
+  id: string;
+  fecha: string;
+  metodoPago: MetodoPago;
+  creadoEn: string;
+  items: ItemPedido[];
+  total: number;
 }
 
 export interface Insumo {

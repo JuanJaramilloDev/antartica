@@ -1,0 +1,82 @@
+<div class="pagina">
+  <app-encabezado titulo="Vender" [subtitulo]="hoy" />
+
+  <div class="resumen-dia">
+    <span>Hoy llevas</span>
+    <span class="texto-secundario">· {{ pedidosHoy().length }} {{ pedidosHoy().length === 1 ? 'venta' : 'ventas' }}</span>
+  </div>
+
+  @if (error()) {
+    <div class="aviso-error" role="alert">
+      {{ error() }}
+      <button class="boton-texto" style="display: block; padding-bottom: 0" (click)="cargar()">
+        Reintentar
+      </button>
+    </div>
+  }
+
+  @if (cargando()) {
+    <h2 class="etiqueta-seccion">Cargando…</h2>
+  } @else {
+    <h2 class="etiqueta-seccion">
+      Toca para agregar
+      @if (vasosVenta()) {
+        <a href="" (click)="$event.preventDefault(); limpiar()">Limpiar</a>
+      }
+    </h2>
+
+    <div class="productos">
+      @for (producto of productos(); track producto.id) {
+        <div class="producto" [class.elegido]="cantidad(producto.id) > 0">
+          <button type="button" class="producto-boton" (click)="sumar(producto.id)">
+            <span class="producto-nombre">{{ producto.nombre }}</span>
+            <span class="producto-precio">{{ producto.precioVenta | moneda }}</span>
+            @if (cantidad(producto.id)) {
+              <span class="producto-cantidad">{{ cantidad(producto.id) }}</span>
+            }
+          </button>
+          <app-contador
+            [idCampo]="'cantidad-' + producto.id"
+            [etiqueta]="'Cantidad de ' + producto.nombre"
+            [valor]="cantidad(producto.id)"
+            (valorChange)="fijar(producto.id, $event)"
+          />
+        </div>
+      } @empty {
+        <div class="tarjeta vacio" style="grid-column: 1 / -1">No hay productos activos.</div>
+      }
+    </div>
+
+    <h2 class="etiqueta-seccion">Cómo pagó</h2>
+    <div class="segmentado">
+      @for (opcion of metodos; track opcion) {
+        <button type="button" [class.activo]="metodo() === opcion" (click)="metodo.set(opcion)">
+          {{ opcion }}
+        </button>
+      }
+    </div>
+
+    <div class="tarjeta tarjeta-oscura cobro">
+      <div>
+        <div class="dato-etiqueta">Total</div>
+        <div class="dato-valor-grande">{{ totalVenta() | moneda }}</div>
+        <div class="dato-nota" style="color: var(--azul)">
+          {{ vasosVenta() }} {{ vasosVenta() === 1 ? 'vaso' : 'vasos' }} · {{ metodo() }}
+        </div>
+      </div>
+    </div>
+
+    @if (exito()) {
+      <div class="aviso-exito" role="status">{{ exito() }}</div>
+    }
+
+    <button
+      type="button"
+      class="boton boton-azul boton-bloque registrar"
+      [disabled]="!totalVenta() || guardando()"
+      (click)="registrar()"
+    >
+      {{ guardando() ? 'Registrando…' : 'Registrar venta' }}
+    </button>
+  }
+</div>

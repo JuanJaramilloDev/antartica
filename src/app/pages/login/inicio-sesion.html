@@ -4,18 +4,24 @@
     Atrás
   </a>
 
-  <h1>Iniciar sesión</h1>
-  <p class="texto-secundario">Ingresa con tu correo y contraseña.</p>
+  <div class="cabecera">
+    <img class="logo" src="icons/logo-320.webp" alt="Antártica Drinks" width="120" height="120" />
+    <h1>Iniciar sesión</h1>
+    <p>Ingresa con tu correo y contraseña.</p>
+  </div>
 
-  <form (submit)="ingresar($event)" novalidate>
-    <div class="lista campos">
-      <label class="fila" for="login-correo">
-        <span class="campo-etiqueta">Correo</span>
+  <form class="tarjeta-login" (submit)="ingresar($event)" novalidate>
+    <div class="campos">
+      <label class="campo-login" for="login-correo">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="3" y="5" width="18" height="14" rx="2.5" />
+          <path d="M4 7l8 6 8-6" />
+        </svg>
         <input
           id="login-correo"
           type="email"
           inputmode="email"
-          placeholder="tu@correo.com"
+          placeholder="Correo"
           autocomplete="username"
           autocapitalize="none"
           spellcheck="false"
@@ -23,12 +29,15 @@
           (input)="correo.set($any($event.target).value)"
         />
       </label>
-      <label class="fila" for="login-clave">
-        <span class="campo-etiqueta">Clave</span>
+      <label class="campo-login" for="login-clave">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="5" y="10.5" width="14" height="10" rx="2.5" />
+          <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" />
+        </svg>
         <input
           id="login-clave"
           [type]="verClave() ? 'text' : 'password'"
-          placeholder="Requerida"
+          placeholder="Contraseña"
           autocomplete="current-password"
           [value]="clave()"
           (input)="clave.set($any($event.target).value)"
@@ -36,7 +45,7 @@
         <button
           type="button"
           class="ver-clave"
-          [attr.aria-label]="verClave() ? 'Ocultar clave' : 'Mostrar clave'"
+          [attr.aria-label]="verClave() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
           (click)="verClave.set(!verClave())"
         >
           {{ verClave() ? 'Ocultar' : 'Ver' }}
@@ -45,15 +54,15 @@
     </div>
 
     @if (error()) {
-      <div class="aviso-error" role="alert" style="margin: -8px 0 16px">{{ error() }}</div>
+      <div class="aviso-error" role="alert">{{ error() }}</div>
     }
 
     <button
       type="submit"
-      class="boton boton-primario boton-bloque"
+      class="boton boton-primario boton-bloque boton-entrar"
       [disabled]="!valido() || entrando()"
     >
-      {{ entrando() ? 'Entrando…' : 'Continuar' }}
+      {{ entrando() ? 'Entrando…' : 'Entrar' }}
     </button>
   </form>
 </section>

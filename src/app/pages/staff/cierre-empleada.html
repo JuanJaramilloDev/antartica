@@ -1,0 +1,117 @@
+<form (submit)="enviar($event)" novalidate>
+  <header class="hoja-barra">
+    <button type="button" class="boton-texto" (click)="cancelar.emit()">Cancelar</button>
+    <h2>Cerrar el día</h2>
+    <button type="submit" class="boton-texto" [disabled]="hayErrores() || enviando() || cargando()">
+      {{ enviando() ? 'Enviando…' : 'Enviar' }}
+    </button>
+  </header>
+
+  <div class="tarjeta tarjeta-oscura">
+    <div class="dato-etiqueta">Registraste hoy</div>
+    <div class="dato-valor-grande">{{ totalRegistrado() | moneda }}</div>
+    <div class="dato-nota" style="color: var(--azul)">
+      Efectivo {{ efectivoRegistrado() | moneda }} · Nequi {{ nequiRegistrado() | moneda }}
+    </div>
+  </div>
+
+  <h3 class="etiqueta-seccion">¿Cuántos vasos sobraron?</h3>
+  <div class="lista">
+    @if (cargando()) {
+      <div class="vacio">Cargando…</div>
+    } @else {
+      @for (fila of filas(); track fila.productoId) {
+        <div class="fila">
+          <div class="fila-cuerpo">
+            <div class="fila-titulo">{{ fila.nombre }}</div>
+            <div class="fila-subtitulo">
+              Tenías {{ fila.tenia }}
+              @if (fila.arrastre) {
+                ({{ fila.arrastre }} de antes + {{ fila.cantidad }} bajados)
+              }
+            </div>
+            <div
+              class="fila-subtitulo"
+              [class.texto-rojo]="fila.diferencia !== 0"
+              [class.texto-verde]="fila.diferencia === 0"
+            >
+              @if (fila.sobran > fila.tenia) {
+                Sobran más de los que tenías
+              } @else if (fila.diferencia === 0) {
+                Cuadra: vendiste {{ fila.porConteo }}
+              } @else if (fila.diferencia > 0) {
+                Faltan {{ fila.diferencia }} por registrar
+              } @else {
+                Registraste {{ -fila.diferencia }} de más
+              }
+            </div>
+          </div>
+          <app-contador
+            [idCampo]="'sobran-' + fila.productoId"
+            [etiqueta]="'Vasos que sobraron de ' + fila.nombre"
+            [valor]="fila.sobran"
+            (valorChange)="fijarSobrantes(fila.productoId, $event)"
+          />
+        </div>
+      } @empty {
+        <div class="vacio">Hoy no hubo vasos.</div>
+      }
+    }
+  </div>
+  <p class="nota-formulario">Cuenta los vasos que quedan y corrige si no coincide.</p>
+
+  <h3 class="etiqueta-seccion">Plata en efectivo</h3>
+  <div class="lista">
+    <label class="fila campo" for="cierre-efectivo">
+      <span class="campo-etiqueta">Tengo</span>
+      <app-campo-moneda idCampo="cierre-efectivo" [(valor)]="efectivoContado" />
+    </label>
+  </div>
+  @if (diferenciaEfectivo() !== null) {
+    <p
+      class="nota-formulario"
+      [class.texto-verde]="diferenciaEfectivo() === 0"
+      [class.texto-rojo]="diferenciaEfectivo() !== 0"
+    >
+      @if (diferenciaEfectivo() === 0) {
+        Cuadra con lo que registraste en efectivo.
+      } @else if (diferenciaEfectivo()! > 0) {
+        Sobran {{ diferenciaEfectivo() | moneda }} frente a lo registrado.
+      } @else {
+        Faltan {{ -diferenciaEfectivo()! | moneda }} frente a lo registrado.
+      }
+    </p>
+  } @else {
+    <p class="nota-formulario">Cuenta el efectivo sin contar la base.</p>
+  }
+
+  <h3 class="etiqueta-seccion">Nota</h3>
+  <div class="lista">
+    <label class="fila campo" for="cierre-nota">
+      <input
+        id="cierre-nota"
+        type="text"
+        placeholder="Opcional"
+        autocomplete="off"
+        maxlength="200"
+        style="text-align: left"
+        [value]="nota()"
+        (input)="nota.set($any($event.target).value)"
+      />
+    </label>
+  </div>
+
+  @if (error()) {
+    <div class="aviso-error" role="alert">{{ error() }}</div>
+  }
+
+  <button
+    type="submit"
+    class="boton boton-primario boton-bloque"
+    style="margin-top: 20px"
+    [disabled]="hayErrores() || enviando() || cargando()"
+  >
+    {{ enviando() ? 'Enviando…' : 'Enviar cierre' }}
+  </button>
+  <p class="nota-formulario">El administrador lo revisa y lo verifica.</p>
+</form>
