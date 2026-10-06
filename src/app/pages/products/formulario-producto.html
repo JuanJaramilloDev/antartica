@@ -1,0 +1,116 @@
+<form (submit)="guardar($event)" novalidate>
+  <header class="hoja-barra">
+    <button type="button" class="boton-texto" (click)="cancelar.emit()">Cancelar</button>
+    <h2>{{ esEdicion() ? 'Editar producto' : 'Nuevo producto' }}</h2>
+    <button type="submit" class="boton-texto" [disabled]="!valido() || guardando()">
+      {{ guardando() ? 'Guardando…' : 'Guardar' }}
+    </button>
+  </header>
+
+  <div class="lista">
+    <label class="fila campo" for="producto-nombre">
+      <span class="campo-etiqueta">Nombre</span>
+      <input
+        id="producto-nombre"
+        type="text"
+        placeholder="Ej: Vaso 9 oz"
+        autocomplete="off"
+        maxlength="60"
+        [value]="nombre()"
+        (input)="nombre.set($any($event.target).value)"
+      />
+    </label>
+  </div>
+
+  <h3 class="etiqueta-seccion">Precios por unidad</h3>
+  <div class="lista">
+    <label class="fila campo" for="producto-precio">
+      <span class="campo-etiqueta">Precio de venta</span>
+      <app-campo-moneda idCampo="producto-precio" [(valor)]="precioVenta" />
+    </label>
+    <label class="fila campo" for="producto-costo">
+      <span class="campo-etiqueta">Costo de fabricación</span>
+      <app-campo-moneda idCampo="producto-costo" [(valor)]="costo" />
+    </label>
+    <div class="fila">
+      <span class="campo-etiqueta texto-secundario">Ganancia</span>
+      <span class="fila-final" style="flex: 1">
+        <strong [class.texto-verde]="ganancia() > 0" [class.texto-rojo]="ganancia() < 0">
+          {{ ganancia() | moneda }}
+        </strong>
+        <span class="insignia" style="margin-left: 8px">{{ margen() }}%</span>
+      </span>
+    </div>
+  </div>
+  @if (ganancia() < 0) {
+    <p class="nota-formulario texto-rojo">El costo es mayor que el precio de venta.</p>
+  }
+
+  <h3 class="etiqueta-seccion">Paquete</h3>
+  <div class="lista">
+    <div class="fila">
+      <label class="fila-cuerpo" for="producto-paquete">Unidades por paquete</label>
+      <app-contador idCampo="producto-paquete" etiqueta="Unidades por paquete" [paso]="5" [(valor)]="unidadesPaquete" />
+    </div>
+    @if (unidadesPaquete()) {
+      <label class="fila campo" for="producto-insumo">
+        <span class="campo-etiqueta">Descontar de</span>
+        <select
+          id="producto-insumo"
+          [value]="insumoId()"
+          (change)="insumoId.set($any($event.target).value)"
+        >
+          <option value="">Ningún insumo</option>
+          @for (insumo of insumos(); track insumo.id) {
+            <option [value]="insumo.id" [selected]="insumo.id === insumoId()">
+              {{ insumo.nombre }} ({{ insumo.categoria }})
+            </option>
+          }
+        </select>
+      </label>
+    }
+  </div>
+  <p class="nota-formulario">
+    @if (unidadesPaquete() && insumoId()) {
+      En "Vasos del día" sumas paquetes de {{ unidadesPaquete() }} y se descuentan del inventario.
+    } @else if (unidadesPaquete()) {
+      En "Vasos del día" podrás sumar paquetes de {{ unidadesPaquete() }} con un toque.
+    } @else {
+      Déjalo en 0 si este producto no viene por paquetes.
+    }
+  </p>
+
+  <h3 class="etiqueta-seccion">Disponibilidad</h3>
+  <div class="lista">
+    <label class="fila">
+      <span class="fila-cuerpo">
+        <span class="fila-titulo" style="display: block">Activo</span>
+        <span class="fila-subtitulo" style="display: block">Aparece al registrar ventas</span>
+      </span>
+      <input
+        type="checkbox"
+        class="interruptor"
+        [checked]="activo()"
+        (change)="activo.set($any($event.target).checked)"
+      />
+    </label>
+  </div>
+
+  @if (error()) {
+    <div class="aviso-error" role="alert">{{ error() }}</div>
+  }
+
+  @if (esEdicion()) {
+    <div style="margin-top: 32px">
+      <button
+        type="button"
+        class="boton-peligro"
+        [class.confirmar]="confirmandoEliminar()"
+        [disabled]="guardando()"
+        (click)="eliminar()"
+      >
+        {{ confirmandoEliminar() ? 'Toca de nuevo para eliminar' : 'Eliminar producto' }}
+      </button>
+    </div>
+  }
+</form>

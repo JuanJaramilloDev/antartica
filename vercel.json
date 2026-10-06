@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "node scripts/crear-entorno.mjs && ng build",
+  "outputDirectory": "dist/Antartica/browser",
+  "crons": [
+    {
+      "path": "/api/ping",
+      "schedule": "0 15 */5 * *"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

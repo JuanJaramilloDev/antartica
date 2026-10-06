@@ -1,0 +1,121 @@
+<div class="pagina">
+  <app-encabezado titulo="Préstamos" volver="/panel/mas">
+    @if (configurado) {
+      <button class="boton-circular" aria-label="Nuevo préstamo" (click)="nuevo()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+      </button>
+    }
+  </app-encabezado>
+
+  @if (!configurado) {
+    <div class="tarjeta">
+      <div class="fila-titulo">Conecta Supabase</div>
+      <p class="texto-secundario" style="margin: 6px 0 0; font-size: 15px">
+        Pon la URL y la anon key de tu proyecto en
+        <strong>src/environments/entorno.ts</strong> y recarga la página.
+      </p>
+    </div>
+  } @else {
+    <div class="tarjeta tarjeta-oscura">
+      <div class="dato-etiqueta">Prestado por cobrar</div>
+      <div class="dato-valor-grande">{{ porCobrar() | moneda }}</div>
+      <div class="dato-nota" style="color: var(--azul)">
+        {{ cantidadPendientes() }} {{ cantidadPendientes() === 1 ? 'pendiente' : 'pendientes' }}
+        @if (cantidadVencidos()) {
+          · {{ cantidadVencidos() }} {{ cantidadVencidos() === 1 ? 'vencido' : 'vencidos' }}
+        }
+      </div>
+    </div>
+    <p class="nota-formulario">
+      Al prestar, la plata sale de la caja. Cada abono vuelve a sumar a la caja.
+    </p>
+
+    <div class="segmentado" style="margin-top: 16px">
+      <button [class.activo]="estado() === 'pendiente'" (click)="estado.set('pendiente')">
+        Pendientes
+      </button>
+      <button [class.activo]="estado() === 'pagado'" (click)="estado.set('pagado')">Pagados</button>
+    </div>
+
+    @if (error()) {
+      <div class="aviso-error" role="alert">
+        {{ error() }}
+        <button class="boton-texto" style="display: block; padding-bottom: 0" (click)="cargar()">
+          Reintentar
+        </button>
+      </div>
+    } @else if (cargando()) {
+      <h2 class="etiqueta-seccion">Cargando…</h2>
+    } @else {
+      <h2 class="etiqueta-seccion">Personas</h2>
+      <div class="lista">
+        @for (prestamo of visibles(); track prestamo.id) {
+          <button class="fila" (click)="verDetalle(prestamo)">
+            <span class="fila-icono">{{ iniciales(prestamo.persona) }}</span>
+            <span class="fila-cuerpo">
+              <span class="fila-titulo" style="display: block">{{ prestamo.persona }}</span>
+              <span class="fila-subtitulo" style="display: block">
+                Prestó {{ prestamo.monto | moneda }} · {{ prestamo.fecha | fechaCorta }}
+              </span>
+              @if (prestamo.estado === 'pendiente') {
+                <span class="barra-progreso" style="display: block; margin-top: 8px; max-width: 220px">
+                  <span [style.width.%]="progreso(prestamo)"></span>
+                </span>
+              }
+            </span>
+            <span class="fila-final">
+              @if (prestamo.estado === 'pendiente') {
+                <span class="fila-titulo" style="display: block">{{ prestamo.saldo | moneda }}</span>
+                @if (vencido(prestamo)) {
+                  <span class="insignia insignia-roja">Vencido</span>
+                } @else if (prestamo.fechaLimite) {
+                  <span class="fila-subtitulo" style="display: block">Vence {{ prestamo.fechaLimite | fechaCorta }}</span>
+                } @else {
+                  <span class="fila-subtitulo" style="display: block">Abonó {{ prestamo.abonado | moneda }}</span>
+                }
+              } @else {
+                <span class="fila-titulo" style="display: block">{{ prestamo.monto | moneda }}</span>
+                <span class="insignia insignia-verde">Pagado</span>
+              }
+            </span>
+            <svg class="chevron" viewBox="0 0 8 14" aria-hidden="true"><path d="M1 1l6 6-6 6" /></svg>
+          </button>
+        } @empty {
+          <div class="vacio">
+            @if (estado() === 'pendiente') {
+              Nadie te debe. Toca + para registrar un préstamo.
+            } @else {
+              Aún no hay préstamos pagados.
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+</div>
+
+<app-hoja [abierta]="vista() !== null" etiqueta="Préstamo" (cerrar)="cerrar()">
+  @switch (vista()) {
+    @case ('nuevo') {
+      <app-formulario-prestamo (guardado)="alGuardar($event)" (cancelar)="cancelarFormulario()" />
+    }
+    @case ('editar') {
+      <app-formulario-prestamo
+        [prestamo]="seleccionado()"
+        (guardado)="alGuardar($event)"
+        (eliminado)="alEliminar($event)"
+        (cancelar)="cancelarFormulario()"
+      />
+    }
+    @case ('detalle') {
+      <app-detalle-prestamo
+        [prestamo]="seleccionado()!"
+        (actualizado)="alActualizar($event)"
+        (editar)="vista.set('editar')"
+        (cerrar)="cerrar()"
+      />
+    }
+  }
+</app-hoja>

@@ -1,0 +1,36 @@
+<section class="login">
+  <a class="volver" routerLink="/" aria-label="Volver">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+    Atrás
+  </a>
+
+  <h1>Iniciar sesión</h1>
+  <p class="texto-secundario">Ingresa con tu correo y contraseña.</p>
+
+  <form (submit)="ingresar($event)">
+    <div class="lista campos">
+      <label class="fila">
+        <span class="campo-etiqueta">Correo</span>
+        <input
+          type="email"
+          placeholder="tu@correo.com"
+          autocomplete="email"
+          [value]="correo()"
+          (input)="correo.set($any($event.target).value)"
+        />
+      </label>
+      <label class="fila">
+        <span class="campo-etiqueta">Clave</span>
+        <input
+          type="password"
+          placeholder="Requerida"
+          autocomplete="current-password"
+          [value]="clave()"
+          (input)="clave.set($any($event.target).value)"
+        />
+      </label>
+    </div>
+
+    <button type="submit" class="boton boton-primario boton-bloque">Continuar</button>
+  </form>
+</section>

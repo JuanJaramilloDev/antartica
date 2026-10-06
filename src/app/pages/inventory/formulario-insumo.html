@@ -1,0 +1,105 @@
+<form (submit)="guardar($event)" novalidate>
+  <header class="hoja-barra">
+    <button type="button" class="boton-texto" (click)="cancelar.emit()">Cancelar</button>
+    <h2>{{ esEdicion() ? 'Editar insumo' : 'Nuevo insumo' }}</h2>
+    <button type="submit" class="boton-texto" [disabled]="!valido() || guardando()">
+      {{ guardando() ? 'Guardando…' : 'Guardar' }}
+    </button>
+  </header>
+
+  <div class="lista">
+    <label class="fila campo" for="insumo-nombre">
+      <span class="campo-etiqueta">Nombre</span>
+      <input
+        id="insumo-nombre"
+        type="text"
+        placeholder="Ej: Gusanos"
+        autocomplete="off"
+        maxlength="60"
+        [value]="nombre()"
+        (input)="nombre.set($any($event.target).value)"
+      />
+    </label>
+    <label class="fila campo" for="insumo-categoria">
+      <span class="campo-etiqueta">Categoría</span>
+      <input
+        id="insumo-categoria"
+        type="text"
+        placeholder="Ej: Dulces"
+        autocomplete="off"
+        maxlength="30"
+        [value]="categoria()"
+        (input)="categoria.set($any($event.target).value)"
+      />
+    </label>
+  </div>
+  @if (categorias().length) {
+    <div class="chips" role="group" aria-label="Categorías existentes">
+      @for (opcion of categorias(); track opcion) {
+        <button
+          type="button"
+          class="chip"
+          [class.activo]="categoria() === opcion"
+          (click)="categoria.set(opcion)"
+        >
+          {{ opcion }}
+        </button>
+      }
+    </div>
+  }
+
+  <h3 class="etiqueta-seccion">Existencias</h3>
+  <div class="lista">
+    <div class="fila">
+      <label class="fila-cuerpo" for="insumo-cantidad">Cantidad</label>
+      <app-contador idCampo="insumo-cantidad" etiqueta="Cantidad" [(valor)]="cantidad" />
+    </div>
+    <label class="fila campo" for="insumo-unidad">
+      <span class="campo-etiqueta">Unidad</span>
+      <input
+        id="insumo-unidad"
+        type="text"
+        autocomplete="off"
+        maxlength="20"
+        [value]="unidad()"
+        (input)="unidad.set($any($event.target).value)"
+      />
+    </label>
+  </div>
+  <div class="chips" role="group" aria-label="Unidades comunes">
+    @for (opcion of unidades; track opcion) {
+      <button type="button" class="chip" [class.activo]="unidad() === opcion" (click)="unidad.set(opcion)">
+        {{ opcion }}
+      </button>
+    }
+  </div>
+
+  <h3 class="etiqueta-seccion">Alerta</h3>
+  <div class="lista">
+    <div class="fila">
+      <label class="fila-cuerpo" for="insumo-minimo">Avisar con</label>
+      <app-contador idCampo="insumo-minimo" etiqueta="Cantidad mínima" [(valor)]="minimo" />
+    </div>
+  </div>
+  <p class="nota-formulario">
+    Aparece en "Por reponer" cuando queden {{ minimo() }} {{ unidad() }} o menos.
+  </p>
+
+  @if (error()) {
+    <div class="aviso-error" role="alert">{{ error() }}</div>
+  }
+
+  @if (esEdicion()) {
+    <div style="margin-top: 32px">
+      <button
+        type="button"
+        class="boton-peligro"
+        [class.confirmar]="confirmandoEliminar()"
+        [disabled]="guardando()"
+        (click)="eliminar()"
+      >
+        {{ confirmandoEliminar() ? 'Toca de nuevo para eliminar' : 'Eliminar insumo' }}
+      </button>
+    </div>
+  }
+</form>

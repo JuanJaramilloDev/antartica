@@ -1,0 +1,59 @@
+<div class="pagina">
+  <app-encabezado titulo="Ventas" />
+
+  <div class="segmentado">
+    @for (p of periodos; track p.valor) {
+      <button [class.activo]="periodo() === p.valor" (click)="periodo.set(p.valor)">
+        {{ p.etiqueta }}
+      </button>
+    }
+  </div>
+
+  <div class="rejilla" style="margin-top: 16px">
+    <div class="tarjeta tarjeta-oscura">
+      <div class="dato-etiqueta">Vendido</div>
+      <div class="dato-valor">{{ total() | moneda }}</div>
+      <div class="dato-nota" style="color: var(--azul)">{{ unidades() }} vasos</div>
+    </div>
+    <div class="tarjeta">
+      <div class="dato-etiqueta">Ganancia</div>
+      <div class="dato-valor texto-verde">{{ ganancia() | moneda }}</div>
+      <div class="dato-nota">Venta − costo de fabricación</div>
+    </div>
+  </div>
+  <p class="nota-formulario">
+    Las ventas se registran solas al <a routerLink="/panel/mas/cierres" style="color: var(--azul-fuerte)">cerrar el día</a>.
+  </p>
+
+  @if (error()) {
+    <div class="aviso-error" role="alert">
+      {{ error() }}
+      <button class="boton-texto" style="display: block; padding-bottom: 0" (click)="cargar()">
+        Reintentar
+      </button>
+    </div>
+  } @else {
+    <h2 class="etiqueta-seccion">{{ cargando() ? 'Cargando…' : 'Registro' }}</h2>
+    @if (!cargando()) {
+      <div class="lista">
+        @for (venta of ventas(); track venta.id) {
+          <div class="fila">
+            <div class="fila-icono">{{ venta.cantidad }}</div>
+            <div class="fila-cuerpo">
+              <div class="fila-titulo">{{ venta.nombreProducto }}</div>
+              <div class="fila-subtitulo">
+                {{ venta.fecha | fechaCorta }} · {{ venta.cantidad }} × {{ venta.precioUnitario | moneda }}
+              </div>
+            </div>
+            <div class="fila-final">
+              <div class="fila-titulo">{{ venta.total | moneda }}</div>
+              <div class="fila-subtitulo texto-verde">+{{ venta.ganancia | moneda }}</div>
+            </div>
+          </div>
+        } @empty {
+          <div class="vacio">No hay ventas en este periodo.</div>
+        }
+      </div>
+    }
+  }
+</div>

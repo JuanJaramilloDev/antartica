@@ -1,0 +1,172 @@
+<div class="pagina">
+  <app-encabezado titulo="Cierres" volver="/panel/mas" />
+
+  @if (error()) {
+    <div class="aviso-error" role="alert">
+      {{ error() }}
+      <button class="boton-texto" style="display: block; padding-bottom: 0" (click)="cargar()">
+        Reintentar
+      </button>
+    </div>
+  } @else if (cargando()) {
+    <h2 class="etiqueta-seccion">Cargando…</h2>
+  } @else {
+    <!-- Cierre de hoy -->
+    @if (cierreHoy(); as hoy) {
+      <button type="button" class="tarjeta tarjeta-oscura tarjeta-boton" (click)="abrirCierre(hoy)">
+        <span class="dato-etiqueta" style="display: flex; justify-content: space-between">
+          Hoy debes tener
+          <span style="color: var(--azul)">Editar ›</span>
+        </span>
+        <span class="dato-valor-grande" style="display: block">{{ hoy.totalFinal | moneda }}</span>
+        <span class="dato-nota" style="display: block; color: var(--azul)">
+          {{ hoy.vasosVendidos }} vasos · Ventas {{ hoy.totalVentas | moneda }} · Empleada −{{ hoy.sueldoEmpleada | moneda }}
+        </span>
+      </button>
+    } @else {
+      <div class="tarjeta">
+        <div class="fila-titulo">Aún no has cerrado el día</div>
+        <p class="texto-secundario" style="margin: 4px 0 12px; font-size: 14px">
+          Escribe los vasos que sobraron y te digo cuánto debes tener.
+        </p>
+        <button type="button" class="boton boton-primario boton-bloque" (click)="abrirCierre(null)">
+          Cerrar el día
+        </button>
+      </div>
+    }
+
+    <!-- Sueldos -->
+    <h2 class="etiqueta-seccion">
+      Sueldos
+      <a href="" (click)="$event.preventDefault(); hoja.set('sueldos')">Editar</a>
+    </h2>
+    <div class="lista">
+      <div class="fila">
+        <span class="fila-cuerpo">Empleada <span class="texto-secundario">· por día</span></span>
+        <strong>{{ ajustes().sueldoEmpleadaDia | moneda }}</strong>
+      </div>
+      <div class="fila">
+        <span class="fila-cuerpo">Mi sueldo <span class="texto-secundario">· por mes</span></span>
+        @if (ajustes().sueldoMioMes) {
+          <strong>{{ ajustes().sueldoMioMes | moneda }}</strong>
+        } @else {
+          <span class="texto-secundario">Sin definir</span>
+        }
+      </div>
+    </div>
+
+    <!-- Días cerrados -->
+    <h2 class="etiqueta-seccion">
+      Días cerrados
+      <a href="" (click)="$event.preventDefault(); abrirCierre(null)">Cerrar otro día</a>
+    </h2>
+    <div class="lista lista-desplazable">
+      @for (cierre of cierres(); track cierre.id) {
+        <button class="fila" (click)="abrirCierre(cierre)">
+          <span class="fila-cuerpo">
+            <span class="fila-titulo" style="display: block">{{ cierre.fecha | fechaCorta }}</span>
+            <span class="fila-subtitulo" style="display: block">
+              {{ cierre.vasosVendidos }} vasos · Ventas {{ cierre.totalVentas | moneda }}
+            </span>
+          </span>
+          <span class="fila-final">
+            <span class="fila-titulo" style="display: block">{{ cierre.totalFinal | moneda }}</span>
+            <span class="fila-subtitulo" style="display: block">debías tener</span>
+          </span>
+          <svg class="chevron" viewBox="0 0 8 14" aria-hidden="true"><path d="M1 1l6 6-6 6" /></svg>
+        </button>
+      } @empty {
+        <div class="vacio">Aún no hay días cerrados.</div>
+      }
+    </div>
+
+    <!-- Meses -->
+    <h2 class="etiqueta-seccion">Por mes</h2>
+    <div class="lista lista-desplazable">
+      @for (mes of meses(); track mes.mes) {
+        <button class="fila" (click)="abrirMes(mes)">
+          <span class="fila-cuerpo">
+            <span class="fila-titulo" style="display: block">{{ nombreMes(mes.mes) }}</span>
+            <span class="fila-subtitulo" style="display: block">
+              Ventas {{ mes.ventas | moneda }} · Cierre {{ mes.cierre | moneda }}
+              @if (mes.otrosIngresos) {
+                · <span class="texto-verde">Otros +{{ mes.otrosIngresos | moneda }}</span>
+              }
+            </span>
+          </span>
+          <span class="fila-final">
+            <span class="fila-titulo" style="display: block">{{ mes.total | moneda }}</span>
+            <span class="fila-subtitulo" style="display: block">total</span>
+          </span>
+          <svg class="chevron" viewBox="0 0 8 14" aria-hidden="true"><path d="M1 1l6 6-6 6" /></svg>
+        </button>
+      } @empty {
+        <div class="vacio">Los meses aparecen cuando cierres días o registres gastos.</div>
+      }
+    </div>
+
+    <!-- Semestres -->
+    <h2 class="etiqueta-seccion">Por semestre</h2>
+    <div class="lista">
+      @for (semestre of semestres(); track semestre.clave) {
+        <button class="fila" (click)="abrirSemestre(semestre)">
+          <span class="fila-cuerpo">
+            <span class="fila-titulo" style="display: block">{{ semestre.nombre }}</span>
+            <span class="fila-subtitulo" style="display: block">
+              Ventas {{ semestre.ventas | moneda }} · Salarios {{ semestre.salarios | moneda }}
+              @if (semestre.otrosIngresos) {
+                · <span class="texto-verde">Otros +{{ semestre.otrosIngresos | moneda }}</span>
+              }
+            </span>
+          </span>
+          <span class="fila-final">
+            <span class="fila-titulo" style="display: block">{{ semestre.total | moneda }}</span>
+            <span class="fila-subtitulo" style="display: block">total</span>
+          </span>
+          <svg class="chevron" viewBox="0 0 8 14" aria-hidden="true"><path d="M1 1l6 6-6 6" /></svg>
+        </button>
+      }
+    </div>
+  }
+</div>
+
+<app-hoja [abierta]="hoja() !== null" etiqueta="Cierres" (cerrar)="cerrarHoja()">
+  @switch (hoja()) {
+    @case ('cierre') {
+      <app-formulario-cierre
+        [cierre]="cierreEnEdicion()"
+        [sueldoPorDefecto]="ajustes().sueldoEmpleadaDia"
+        (guardado)="alGuardarCierre()"
+        (cancelar)="cerrarHoja()"
+      />
+    }
+    @case ('mes') {
+      @if (mesSeleccionado(); as mes) {
+        <app-detalle-mes
+          [mes]="mes"
+          [sueldoMioMes]="ajustes().sueldoMioMes"
+          (cambiado)="cargar()"
+          (cerrar)="cerrarMes()"
+        />
+      }
+    }
+    @case ('semestre') {
+      @if (semestreSeleccionado(); as semestre) {
+        <app-detalle-semestre
+          [semestre]="semestre"
+          [meses]="meses()"
+          (abrirMes)="abrirMes($event)"
+          (cambiado)="cargar()"
+          (cerrar)="cerrarHoja()"
+        />
+      }
+    }
+    @case ('sueldos') {
+      <app-ajustes-sueldos
+        [ajustes]="ajustes()"
+        (guardado)="alGuardarSueldos($event)"
+        (cancelar)="cerrarHoja()"
+      />
+    }
+  }
+</app-hoja>

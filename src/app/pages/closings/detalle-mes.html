@@ -1,0 +1,150 @@
+<header class="hoja-barra">
+  <span></span>
+  <h2>{{ nombreMes(mes().mes) }}</h2>
+  <button type="button" class="boton-texto" (click)="cerrar.emit()">Listo</button>
+</header>
+
+<div class="tarjeta tarjeta-oscura">
+  <div class="dato-etiqueta">Te queda</div>
+  <div class="dato-valor-grande">{{ mes().queda | moneda }}</div>
+  <div class="dato-nota" style="color: var(--azul)">
+    {{ mes().vasos }} vasos · {{ mes().diasCerrados }} {{ mes().diasCerrados === 1 ? 'día cerrado' : 'días cerrados' }}
+  </div>
+</div>
+
+<div class="lista" style="margin-top: 12px">
+  <div class="fila">
+    <span class="fila-cuerpo">Ventas totales</span>
+    <strong>{{ mes().ventas | moneda }}</strong>
+  </div>
+  <div class="fila">
+    <span class="fila-cuerpo texto-secundario">Sueldo empleada</span>
+    <span class="texto-rojo">−{{ mes().sueldoEmpleada | moneda }}</span>
+  </div>
+  <div class="fila">
+    <span class="fila-cuerpo">Cierre del mes</span>
+    <strong>{{ mes().cierre | moneda }}</strong>
+  </div>
+  <div class="fila">
+    <span class="fila-cuerpo texto-secundario">Reinversión</span>
+    <span class="texto-rojo">−{{ mes().reinversion | moneda }}</span>
+  </div>
+  @if (mes().otros) {
+    <div class="fila">
+      <span class="fila-cuerpo texto-secundario">Otros gastos</span>
+      <span class="texto-rojo">−{{ mes().otros | moneda }}</span>
+    </div>
+  }
+  <div class="fila">
+    <span class="fila-cuerpo">Total</span>
+    <strong>{{ mes().total | moneda }}</strong>
+  </div>
+  <div class="fila">
+    <span class="fila-cuerpo texto-secundario">Mi sueldo</span>
+    @if (mes().miSueldo) {
+      <span class="texto-rojo">−{{ mes().miSueldo | moneda }}</span>
+    } @else if (sueldoMioMes()) {
+      <button type="button" class="boton-pequeno" [disabled]="guardando()" (click)="pagarMiSueldo()">
+        Registrar pago ({{ sueldoMioMes() | moneda }})
+      </button>
+    } @else {
+      <span class="texto-secundario">Sin definir</span>
+    }
+  </div>
+</div>
+<p class="nota-formulario">
+  Ganancia sobre costo de fabricación: {{ (mes().ventas - mes().costo) | moneda }}
+</p>
+
+<h3 class="etiqueta-seccion">Fuera del negocio</h3>
+<div class="lista">
+  <div class="fila">
+    <span class="fila-cuerpo">Otros ingresos</span>
+    <span class="texto-verde" style="font-weight: 600">+{{ mes().otrosIngresos | moneda }}</span>
+  </div>
+  <div class="fila">
+    <span class="fila-cuerpo">Te queda + otros ingresos</span>
+    <strong>{{ (mes().queda + mes().otrosIngresos) | moneda }}</strong>
+  </div>
+</div>
+<p class="nota-formulario">Los otros ingresos se agregan en Más → Otros ingresos.</p>
+
+<form (submit)="registrarGasto($event)" novalidate>
+  <h3 class="etiqueta-seccion">Agregar gasto</h3>
+  <div class="segmentado">
+    <button type="button" [class.activo]="categoria() === 'Reinversión'" (click)="categoria.set('Reinversión')">
+      Reinversión
+    </button>
+    <button type="button" [class.activo]="categoria() === 'Otro'" (click)="categoria.set('Otro')">
+      Otro gasto
+    </button>
+  </div>
+  <div class="lista" style="margin-top: 12px">
+    <label class="fila campo" for="gasto-monto">
+      <span class="campo-etiqueta">Monto</span>
+      <app-campo-moneda idCampo="gasto-monto" [(valor)]="monto" />
+    </label>
+    <label class="fila campo" for="gasto-descripcion">
+      <span class="campo-etiqueta">Detalle</span>
+      <input
+        id="gasto-descripcion"
+        type="text"
+        [placeholder]="categoria() === 'Reinversión' ? 'Ej: gomitas y salsas' : 'Opcional'"
+        autocomplete="off"
+        maxlength="80"
+        [value]="descripcion()"
+        (input)="descripcion.set($any($event.target).value)"
+      />
+    </label>
+    <label class="fila campo" for="gasto-fecha">
+      <span class="campo-etiqueta">Fecha</span>
+      <input
+        id="gasto-fecha"
+        type="date"
+        [value]="fecha()"
+        (change)="fecha.set($any($event.target).value)"
+      />
+    </label>
+  </div>
+  <button
+    type="submit"
+    class="boton boton-primario boton-bloque"
+    style="margin-top: 12px"
+    [disabled]="!gastoValido() || guardando()"
+  >
+    {{ guardando() ? 'Guardando…' : 'Agregar gasto' }}
+  </button>
+  <p class="nota-formulario">Los gastos salen de la caja.</p>
+</form>
+
+@if (error()) {
+  <div class="aviso-error" role="alert">{{ error() }}</div>
+}
+
+<h3 class="etiqueta-seccion">Gastos del mes ({{ gastosManuales().length }})</h3>
+<div class="lista lista-desplazable">
+  @if (cargando()) {
+    <div class="vacio">Cargando…</div>
+  } @else {
+    @for (gasto of gastosManuales(); track gasto.id) {
+      <div class="fila">
+        <div class="fila-cuerpo">
+          <div class="fila-titulo">{{ gasto.descripcion || gasto.categoria }}</div>
+          <div class="fila-subtitulo">{{ gasto.categoria }} · {{ gasto.fecha | fechaCorta }}</div>
+        </div>
+        <span class="texto-rojo" style="font-weight: 600">−{{ gasto.monto | moneda }}</span>
+        <button
+          type="button"
+          class="boton-pequeno peligro"
+          [disabled]="guardando()"
+          (click)="eliminarGasto(gasto)"
+        >
+          {{ borrandoId() === gasto.id ? '¿Borrar?' : 'Borrar' }}
+        </button>
+      </div>
+    } @empty {
+      <div class="vacio">Sin gastos este mes.</div>
+    }
+  }
+</div>
+<p class="nota-formulario">El sueldo de la empleada se registra solo al cerrar cada día.</p>

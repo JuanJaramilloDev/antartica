@@ -1,0 +1,100 @@
+<header class="hoja-barra">
+  <span></span>
+  <h2>{{ semestre().nombre }}</h2>
+  <button type="button" class="boton-texto" (click)="cerrar.emit()">Listo</button>
+</header>
+
+<div class="tarjeta tarjeta-oscura">
+  <div class="dato-etiqueta">Total del negocio</div>
+  <div class="dato-valor-grande">{{ totales().total | moneda }}</div>
+  <div class="dato-nota" style="color: var(--azul)">
+    Ventas {{ totales().ventas | moneda }} · Salarios {{ totales().salarios | moneda }}
+  </div>
+</div>
+@if (totales().otrosIngresos) {
+  <div class="tarjeta" style="margin-top: 12px">
+    <div class="dato-etiqueta">Otros ingresos (fuera del negocio)</div>
+    <div class="dato-valor texto-verde">+{{ totales().otrosIngresos | moneda }}</div>
+  </div>
+}
+
+<h3 class="etiqueta-seccion">Mes a mes</h3>
+<div class="lista">
+  @for (mes of mesesDelSemestre(); track mes.mes) {
+    <button class="fila" (click)="abrirMes.emit(mes)">
+      <span class="fila-cuerpo">
+        <span class="fila-titulo" style="display: block">{{ nombreMes(mes.mes) }}</span>
+        <span class="fila-subtitulo" style="display: block">
+          Vendido {{ mes.ventas | moneda }}
+          @if (mes.otrosIngresos) {
+            · <span class="texto-verde">Otros +{{ mes.otrosIngresos | moneda }}</span>
+          }
+        </span>
+      </span>
+      <span class="fila-final">
+        <span class="fila-titulo" style="display: block">{{ mes.total | moneda }}</span>
+        <span class="fila-subtitulo" style="display: block">total</span>
+      </span>
+      <svg class="chevron" viewBox="0 0 8 14" aria-hidden="true"><path d="M1 1l6 6-6 6" /></svg>
+    </button>
+  } @empty {
+    <div class="vacio">Este semestre aún no empieza.</div>
+  }
+</div>
+
+@if (mesesDelSemestre().length) {
+  <form (submit)="agregarGasto($event)" novalidate>
+    <h3 class="etiqueta-seccion">Agregar gasto a un mes</h3>
+    <div class="segmentado">
+      <button type="button" [class.activo]="categoria() === 'Reinversión'" (click)="categoria.set('Reinversión')">
+        Reinversión
+      </button>
+      <button type="button" [class.activo]="categoria() === 'Otro'" (click)="categoria.set('Otro')">
+        Otro gasto
+      </button>
+    </div>
+    <div class="lista" style="margin-top: 12px">
+      <label class="fila campo" for="semestre-mes">
+        <span class="campo-etiqueta">Mes</span>
+        <select id="semestre-mes" (change)="mesGasto.set($any($event.target).value)">
+          @for (mes of mesesDelSemestre(); track mes.mes) {
+            <option [value]="mes.mes" [selected]="mes.mes === mesElegido()">{{ nombreMes(mes.mes) }}</option>
+          }
+        </select>
+      </label>
+      <label class="fila campo" for="semestre-monto">
+        <span class="campo-etiqueta">Monto</span>
+        <app-campo-moneda idCampo="semestre-monto" [(valor)]="monto" />
+      </label>
+      <label class="fila campo" for="semestre-detalle">
+        <span class="campo-etiqueta">Detalle</span>
+        <input
+          id="semestre-detalle"
+          type="text"
+          placeholder="Opcional"
+          autocomplete="off"
+          maxlength="80"
+          [value]="descripcion()"
+          (input)="descripcion.set($any($event.target).value)"
+        />
+      </label>
+    </div>
+    <button
+      type="submit"
+      class="boton boton-primario boton-bloque"
+      style="margin-top: 12px"
+      [disabled]="!gastoValido() || guardando()"
+    >
+      {{ guardando() ? 'Guardando…' : 'Agregar gasto' }}
+    </button>
+    @if (aviso()) {
+      <p class="nota-formulario texto-verde">{{ aviso() }}</p>
+    } @else {
+      <p class="nota-formulario">Sale de la caja y se resta del total de ese mes.</p>
+    }
+  </form>
+}
+
+@if (error()) {
+  <div class="aviso-error" role="alert">{{ error() }}</div>
+}

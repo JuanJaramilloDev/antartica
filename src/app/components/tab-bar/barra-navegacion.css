@@ -1,0 +1,74 @@
+.barra {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: space-around;
+  padding: 6px 8px calc(6px + var(--seguro-abajo));
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-top: 0.5px solid var(--separador);
+}
+
+.item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 0;
+  min-height: 50px;
+  color: var(--texto-terciario);
+  font-size: 10px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.item svg {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.2s;
+}
+
+.item.activo {
+  color: var(--azul-fuerte);
+}
+
+.item.activo svg {
+  stroke-width: 2.1;
+}
+
+.item:active svg {
+  transform: scale(0.9);
+}
+
+/* En PC la barra flota como una cápsula centrada */
+@media (min-width: 768px) {
+  .barra {
+    left: 50%;
+    right: auto;
+    bottom: 20px;
+    transform: translateX(-50%);
+    width: 480px;
+    padding: 6px 10px;
+    border: 0.5px solid var(--separador);
+    border-radius: 28px;
+    box-shadow: 0 10px 40px rgba(15, 23, 42, 0.12);
+  }
+
+  .item:hover {
+    color: var(--negro);
+  }
+
+  .item.activo:hover {
+    color: var(--azul-fuerte);
+  }
+}

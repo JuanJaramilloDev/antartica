@@ -1,0 +1,107 @@
+<header class="hoja-barra">
+  <button type="button" class="boton-texto" (click)="cerrar.emit()">Cerrar</button>
+  <h2>{{ prestamo().persona }}</h2>
+  <button type="button" class="boton-texto" (click)="editar.emit()">Editar</button>
+</header>
+
+<div class="tarjeta tarjeta-oscura">
+  @if (prestamo().estado === 'pagado') {
+    <div class="dato-etiqueta">Pagado completo</div>
+    <div class="dato-valor-grande">{{ prestamo().monto | moneda }}</div>
+  } @else {
+    <div class="dato-etiqueta">Te debe</div>
+    <div class="dato-valor-grande">{{ prestamo().saldo | moneda }}</div>
+  }
+  <div class="barra-progreso" style="margin-top: 12px; background: rgba(255, 255, 255, 0.15)">
+    <span [style.width.%]="progreso()"></span>
+  </div>
+  <div class="dato-nota" style="color: var(--azul)">
+    Prestado {{ prestamo().monto | moneda }} · Abonado {{ prestamo().abonado | moneda }}
+  </div>
+</div>
+
+<div class="lista" style="margin-top: 12px">
+  <div class="fila">
+    <span class="fila-cuerpo texto-secundario">Prestado el</span>
+    <span>{{ prestamo().fecha | fechaCorta }}</span>
+  </div>
+  @if (prestamo().fechaLimite) {
+    <div class="fila">
+      <span class="fila-cuerpo texto-secundario">Paga a más tardar</span>
+      @if (vencido()) {
+        <span class="insignia insignia-roja">Vencido · {{ prestamo().fechaLimite | fechaCorta }}</span>
+      } @else {
+        <span>{{ prestamo().fechaLimite | fechaCorta }}</span>
+      }
+    </div>
+  }
+  @if (prestamo().notas) {
+    <div class="fila">
+      <span class="fila-cuerpo texto-secundario" style="white-space: normal">{{ prestamo().notas }}</span>
+    </div>
+  }
+</div>
+
+@if (prestamo().estado === 'pendiente') {
+  <form (submit)="registrarAbono($event)" novalidate>
+    <h3 class="etiqueta-seccion">Registrar abono</h3>
+    <div class="lista">
+      <label class="fila campo" for="abono-monto">
+        <span class="campo-etiqueta">Monto</span>
+        <app-campo-moneda idCampo="abono-monto" [(valor)]="montoAbono" />
+      </label>
+      <label class="fila campo" for="abono-fecha">
+        <span class="campo-etiqueta">Fecha</span>
+        <input
+          id="abono-fecha"
+          type="date"
+          [value]="fechaAbono()"
+          (change)="fechaAbono.set($any($event.target).value)"
+        />
+      </label>
+    </div>
+    @if ((montoAbono() ?? 0) > prestamo().saldo) {
+      <p class="nota-formulario texto-rojo">Es más de lo que debe ({{ prestamo().saldo | moneda }}).</p>
+    } @else {
+      <p class="nota-formulario">El abono vuelve a sumar a la caja.</p>
+    }
+    <div style="display: flex; gap: 8px; margin-top: 12px">
+      <button type="button" class="boton boton-bloque" style="background: var(--azul-suave); color: var(--azul-fuerte)" (click)="pagoCompleto()">
+        Pagó todo
+      </button>
+      <button type="submit" class="boton boton-primario boton-bloque" [disabled]="!abonoValido() || guardando()">
+        {{ guardando() ? 'Guardando…' : 'Abonar' }}
+      </button>
+    </div>
+  </form>
+}
+
+@if (error()) {
+  <div class="aviso-error" role="alert">{{ error() }}</div>
+}
+
+<h3 class="etiqueta-seccion">Abonos ({{ abonos().length }})</h3>
+<div class="lista lista-desplazable">
+  @if (cargandoAbonos()) {
+    <div class="vacio">Cargando…</div>
+  } @else {
+    @for (abono of abonos(); track abono.id) {
+      <div class="fila">
+        <div class="fila-cuerpo">
+          <div class="fila-titulo texto-verde">+{{ abono.monto | moneda }}</div>
+          <div class="fila-subtitulo">{{ abono.fecha | fechaCorta }}</div>
+        </div>
+        <button
+          type="button"
+          class="boton-pequeno peligro"
+          [disabled]="guardando()"
+          (click)="eliminarAbono(abono)"
+        >
+          {{ borrandoId() === abono.id ? '¿Borrar?' : 'Borrar' }}
+        </button>
+      </div>
+    } @empty {
+      <div class="vacio">Aún no hay abonos.</div>
+    }
+  }
+</div>

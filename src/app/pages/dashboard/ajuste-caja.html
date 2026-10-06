@@ -1,0 +1,94 @@
+<header class="hoja-barra">
+  <span></span>
+  <h2>Caja</h2>
+  <button type="button" class="boton-texto" (click)="cerrar.emit()">Listo</button>
+</header>
+
+<div class="tarjeta tarjeta-oscura">
+  <div class="dato-etiqueta">Hay en caja</div>
+  <div class="dato-valor-grande">{{ saldo() | moneda }}</div>
+</div>
+
+<form (submit)="guardar($event)" novalidate>
+  <div class="segmentado" style="margin-top: 16px">
+    @for (m of modos; track m.valor) {
+      <button type="button" [class.activo]="modo() === m.valor" (click)="cambiarModo(m.valor)">
+        {{ m.etiqueta }}
+      </button>
+    }
+  </div>
+
+  <div class="lista" style="margin-top: 12px">
+    <label class="fila campo" for="caja-monto">
+      <span class="campo-etiqueta">
+        @switch (modo()) {
+          @case ('agregar') { Dejo }
+          @case ('retirar') { Saco }
+          @case ('contar') { Hay realmente }
+        }
+      </span>
+      <app-campo-moneda idCampo="caja-monto" [(valor)]="monto" />
+    </label>
+    <label class="fila campo" for="caja-nota">
+      <span class="campo-etiqueta">Nota</span>
+      <input
+        id="caja-nota"
+        type="text"
+        placeholder="Opcional"
+        autocomplete="off"
+        maxlength="80"
+        [value]="nota()"
+        (input)="nota.set($any($event.target).value)"
+      />
+    </label>
+  </div>
+
+  <p class="nota-formulario">
+    @if (modo() === 'contar') {
+      Cuenta la plata que tienes y escríbela. La app registra la diferencia.
+    }
+    @if (monto() !== null) {
+      @if (diferencia() === 0) {
+        La caja ya tiene ese valor.
+      } @else {
+        {{ diferencia() > 0 ? 'Entran' : 'Salen' }}
+        <strong [class.texto-verde]="diferencia() > 0" [class.texto-rojo]="diferencia() < 0">
+          {{ (diferencia() > 0 ? diferencia() : -diferencia()) | moneda }}
+        </strong>
+        · la caja queda en <strong>{{ nuevoSaldo() | moneda }}</strong>
+      }
+    }
+  </p>
+
+  <button
+    type="submit"
+    class="boton boton-primario boton-bloque"
+    style="margin-top: 12px"
+    [disabled]="!valido() || guardando()"
+  >
+    {{ guardando() ? 'Guardando…' : 'Guardar' }}
+  </button>
+</form>
+
+@if (error()) {
+  <div class="aviso-error" role="alert">{{ error() }}</div>
+}
+
+<h3 class="etiqueta-seccion">Movimientos recientes</h3>
+<div class="lista lista-desplazable">
+  @for (mov of movimientos(); track mov.id) {
+    <div class="fila">
+      <div class="fila-cuerpo">
+        <div class="fila-titulo">{{ mov.descripcion || nombresTipo[mov.tipo] }}</div>
+        <div class="fila-subtitulo">{{ nombresTipo[mov.tipo] }} · {{ mov.fecha | fechaCorta }}</div>
+      </div>
+      <div class="fila-final">
+        <div class="fila-titulo" [class.texto-verde]="mov.monto > 0" [class.texto-rojo]="mov.monto < 0">
+          {{ mov.monto > 0 ? '+' : '−' }}{{ (mov.monto > 0 ? mov.monto : -mov.monto) | moneda }}
+        </div>
+      </div>
+    </div>
+  } @empty {
+    <div class="vacio">Aún no hay movimientos.</div>
+  }
+</div>

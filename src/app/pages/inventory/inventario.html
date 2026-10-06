@@ -1,0 +1,99 @@
+<div class="pagina">
+  <app-encabezado titulo="Inventario">
+    @if (configurado) {
+      <button
+        class="boton-circular"
+        [attr.aria-label]="filtro() === 'jugos' ? 'Nuevo jugo' : 'Nuevo insumo'"
+        (click)="abrir(null)"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+      </button>
+    }
+  </app-encabezado>
+
+  @if (!configurado) {
+    <div class="tarjeta">
+      <div class="fila-titulo">Conecta Supabase</div>
+      <p class="texto-secundario" style="margin: 6px 0 0; font-size: 15px">
+        Pon la URL y la anon key de tu proyecto en
+        <strong>src/environments/entorno.ts</strong> y recarga la página.
+      </p>
+    </div>
+  } @else {
+    <div class="segmentado">
+      <button [class.activo]="filtro() === 'insumos'" (click)="filtro.set('insumos')">Insumos</button>
+      <button [class.activo]="filtro() === 'jugos'" (click)="filtro.set('jugos')">Jugos</button>
+      <button [class.activo]="filtro() === 'reponer'" (click)="filtro.set('reponer')">
+        Por reponer ({{ cantidadReponer() }})
+      </button>
+    </div>
+
+    @if (error()) {
+      <div class="aviso-error" role="alert">
+        {{ error() }}
+        <button class="boton-texto" style="display: block; padding-bottom: 0" (click)="cargar()">
+          Reintentar
+        </button>
+      </div>
+    } @else if (cargando()) {
+      <h2 class="etiqueta-seccion">Cargando…</h2>
+    } @else {
+      @if (filtro() === 'jugos') {
+        <div class="tarjeta tarjeta-oscura" style="margin-top: 16px">
+          <div class="dato-etiqueta">Total de jugos</div>
+          <div class="dato-valor-grande">{{ totalJugos() }}</div>
+          <div class="dato-nota" style="color: var(--azul)">bolsas en inventario</div>
+        </div>
+      }
+
+      @for (grupo of grupos(); track grupo.categoria) {
+        <h2 class="etiqueta-seccion">{{ grupo.categoria }}</h2>
+        <div class="lista">
+          @for (insumo of grupo.insumos; track insumo.id) {
+            <button class="fila" (click)="abrir(insumo)">
+              <span class="fila-cuerpo">
+                <span class="fila-titulo" style="display: block">{{ insumo.nombre }}</span>
+              </span>
+              <span class="fila-final">
+                @if (porReponer(insumo)) {
+                  <span class="insignia insignia-roja">{{ insumo.cantidad }} {{ insumo.unidad }}</span>
+                } @else {
+                  <span class="fila-titulo">{{ insumo.cantidad }}</span>
+                  <span class="texto-secundario"> {{ insumo.unidad }}</span>
+                }
+              </span>
+              <svg class="chevron" viewBox="0 0 8 14" aria-hidden="true"><path d="M1 1l6 6-6 6" /></svg>
+            </button>
+          }
+        </div>
+      } @empty {
+        <div class="vacio">
+          @switch (filtro()) {
+            @case ('reponer') { Todo el inventario está en buen nivel. }
+            @case ('jugos') { Aún no hay jugos. Toca + para agregar uno. }
+            @default { Aún no hay insumos. Toca + para agregar uno. }
+          }
+        </div>
+      }
+    }
+  }
+</div>
+
+<app-hoja
+  [abierta]="formularioAbierto()"
+  [etiqueta]="enEdicion() ? 'Editar insumo' : 'Nuevo insumo'"
+  (cerrar)="cerrar()"
+>
+  @if (formularioAbierto()) {
+    <app-formulario-insumo
+      [insumo]="enEdicion()"
+      [valoresIniciales]="valoresNuevo()"
+      [categorias]="categorias()"
+      (guardado)="alGuardar($event)"
+      (eliminado)="alEliminar($event)"
+      (cancelar)="cerrar()"
+    />
+  }
+</app-hoja>

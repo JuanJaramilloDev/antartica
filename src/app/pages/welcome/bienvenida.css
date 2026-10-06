@@ -1,0 +1,71 @@
+:host {
+  display: block;
+  background: radial-gradient(circle at 50% 30%, var(--azul-suave) 0%, transparent 420px);
+}
+
+.bienvenida {
+  min-height: 100dvh;
+  max-width: 420px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: calc(var(--seguro-arriba) + 24px) 24px calc(var(--seguro-abajo) + 32px);
+}
+
+.centro {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.logo {
+  width: 88px;
+  height: 88px;
+  border-radius: 24px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(160deg, #8fd0ff, var(--azul-fuerte));
+  box-shadow: 0 16px 40px rgba(30, 143, 225, 0.3);
+}
+
+.logo svg {
+  width: 44px;
+  height: 44px;
+  fill: none;
+  stroke: var(--blanco);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+h1 {
+  margin: 28px 0 8px;
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+p {
+  margin: 0;
+  max-width: 280px;
+  font-size: 17px;
+  color: var(--texto-secundario);
+}
+
+.acciones {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.enlace {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--azul-fuerte);
+  padding: 6px 12px;
+}

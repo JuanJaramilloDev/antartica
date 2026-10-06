@@ -1,0 +1,95 @@
+<form (submit)="guardar($event)" novalidate>
+  <header class="hoja-barra">
+    <button type="button" class="boton-texto" (click)="cancelar.emit()">Cancelar</button>
+    <h2>{{ esEdicion() ? 'Editar préstamo' : 'Nuevo préstamo' }}</h2>
+    <button type="submit" class="boton-texto" [disabled]="!valido() || guardando()">
+      {{ guardando() ? 'Guardando…' : 'Guardar' }}
+    </button>
+  </header>
+
+  <div class="lista">
+    <label class="fila campo" for="prestamo-persona">
+      <span class="campo-etiqueta">Persona</span>
+      <input
+        id="prestamo-persona"
+        type="text"
+        placeholder="¿A quién le prestas?"
+        autocomplete="off"
+        maxlength="60"
+        [value]="persona()"
+        (input)="persona.set($any($event.target).value)"
+      />
+    </label>
+    <label class="fila campo" for="prestamo-monto">
+      <span class="campo-etiqueta">Monto</span>
+      <app-campo-moneda idCampo="prestamo-monto" [(valor)]="monto" />
+    </label>
+  </div>
+  @if (esEdicion() && (monto() ?? 0) < abonado()) {
+    <p class="nota-formulario texto-rojo">
+      No puede ser menor a lo que ya te abonaron ({{ abonado() | moneda }}).
+    </p>
+  } @else if (!esEdicion() && monto()) {
+    <p class="nota-formulario">Al guardar, salen {{ monto() | moneda }} de la caja.</p>
+  } @else if (esEdicion()) {
+    <p class="nota-formulario">Si cambias el monto, la caja se ajusta sola.</p>
+  }
+
+  <h3 class="etiqueta-seccion">Fechas</h3>
+  <div class="lista">
+    <label class="fila campo" for="prestamo-fecha">
+      <span class="campo-etiqueta">Prestado el</span>
+      <input
+        id="prestamo-fecha"
+        type="date"
+        [value]="fecha()"
+        (change)="fecha.set($any($event.target).value)"
+      />
+    </label>
+    <label class="fila campo" for="prestamo-limite">
+      <span class="campo-etiqueta">Paga a más tardar</span>
+      <input
+        id="prestamo-limite"
+        type="date"
+        [value]="fechaLimite()"
+        (change)="fechaLimite.set($any($event.target).value)"
+      />
+    </label>
+  </div>
+  <p class="nota-formulario">La fecha límite es opcional.</p>
+
+  <h3 class="etiqueta-seccion">Notas</h3>
+  <div class="lista">
+    <label class="fila campo" for="prestamo-notas">
+      <input
+        id="prestamo-notas"
+        type="text"
+        placeholder="Opcional"
+        autocomplete="off"
+        maxlength="200"
+        style="text-align: left"
+        [value]="notas()"
+        (input)="notas.set($any($event.target).value)"
+      />
+    </label>
+  </div>
+
+  @if (error()) {
+    <div class="aviso-error" role="alert">{{ error() }}</div>
+  }
+
+  @if (esEdicion()) {
+    <div style="margin-top: 32px">
+      <button
+        type="button"
+        class="boton-peligro"
+        [class.confirmar]="confirmandoEliminar()"
+        [disabled]="guardando()"
+        (click)="eliminar()"
+      >
+        {{ confirmandoEliminar() ? 'Toca de nuevo para eliminar' : 'Eliminar préstamo' }}
+      </button>
+      <p class="nota-formulario">Se borran también sus abonos y la caja se corrige sola.</p>
+    </div>
+  }
+</form>

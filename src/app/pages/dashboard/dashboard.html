@@ -1,0 +1,149 @@
+<div class="pagina">
+  <app-encabezado titulo="Dashboard" [subtitulo]="hoy" />
+
+  <button
+    type="button"
+    class="tarjeta tarjeta-oscura tarjeta-caja"
+    [disabled]="saldoCaja() === null"
+    (click)="hoja.set('caja')"
+  >
+    <span class="dato-etiqueta" style="display: flex; justify-content: space-between">
+      Caja
+      @if (saldoCaja() !== null) {
+        <span style="color: var(--azul)">Editar ›</span>
+      }
+    </span>
+    <span class="dato-valor-grande" style="display: block">
+      {{ saldoCaja() === null ? '—' : (saldoCaja() | moneda) }}
+    </span>
+    @if (prestado()) {
+      <span class="dato-nota" style="display: block; color: var(--azul)">
+        + {{ prestado() | moneda }} prestado por cobrar
+      </span>
+    }
+  </button>
+
+  @if (error()) {
+    <div class="aviso-error" role="alert">{{ error() }}</div>
+  }
+
+  @if (vasos().length) {
+    <h2 class="etiqueta-seccion">Vasos del día</h2>
+    <button type="button" class="tarjeta tarjeta-boton" style="margin-bottom: 12px" (click)="hoja.set('base')">
+      <span class="dato-etiqueta" style="display: flex; justify-content: space-between">
+        Base
+        <span style="color: var(--azul-fuerte)">Editar ›</span>
+      </span>
+      <span class="dato-valor" style="display: block">{{ base() | moneda }}</span>
+      <span class="dato-nota" style="display: block">Aparte de la caja</span>
+    </button>
+    <div class="lista">
+      @for (item of vasos(); track item.productoId) {
+        <div class="fila">
+          <button type="button" class="fila-cuerpo vasos-toque" (click)="editarVasos(item)">
+            <span class="fila-titulo" style="display: block">{{ item.nombre }}</span>
+            <span class="fila-subtitulo" style="display: block">
+              @if (item.cantidad) {
+                {{ item.cantidad }} bajados{{ item.unidadesPaquete ? ' · ' + paquetes(item) : '' }}
+              } @else {
+                Aún no has bajado vasos
+              }
+              @if (item.paquetesEnInventario !== null) {
+                <span [class.texto-rojo]="item.paquetesEnInventario < 1">
+                  · Quedan {{ item.paquetesEnInventario }} en inventario
+                </span>
+              }
+            </span>
+          </button>
+          @if (item.unidadesPaquete) {
+            <button
+              type="button"
+              class="boton-pequeno"
+              [disabled]="sumandoId() === item.productoId"
+              [attr.aria-label]="'Sumar un paquete de ' + item.unidadesPaquete + ' a ' + item.nombre"
+              (click)="sumarPaquete(item)"
+            >
+              + {{ item.unidadesPaquete }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+    <p class="nota-formulario">Toca "+" para sumar un paquete, o el nombre para poner la cantidad exacta.</p>
+    <a class="boton boton-primario boton-bloque" style="margin-top: 12px" routerLink="/panel/mas/cierres">
+      Cerrar el día
+    </a>
+  }
+
+  <div class="rejilla rejilla-4" style="margin-top: 12px">
+    <div class="tarjeta">
+      <div class="dato-etiqueta">Ventas hoy</div>
+      <div class="dato-valor">{{ totalHoy() | moneda }}</div>
+    </div>
+    <div class="tarjeta">
+      <div class="dato-etiqueta">Ganancia hoy</div>
+      <div class="dato-valor texto-verde">{{ gananciaHoy() | moneda }}</div>
+    </div>
+    <div class="tarjeta">
+      <div class="dato-etiqueta">Vasos hoy</div>
+      <div class="dato-valor">{{ unidadesHoy() }}</div>
+    </div>
+    <a class="tarjeta" routerLink="/panel/ventas">
+      <div class="dato-etiqueta">Últimos 7 días</div>
+      <div class="dato-valor">{{ totalSemana() | moneda }}</div>
+    </a>
+  </div>
+
+  <h2 class="etiqueta-seccion">
+    Vendido hoy
+    <a routerLink="/panel/ventas">Ver ventas</a>
+  </h2>
+  <div class="lista lista-desplazable">
+    @for (item of ventasHoy(); track item.nombre) {
+      <div class="fila">
+        <div class="fila-icono">{{ item.cantidad }}</div>
+        <div class="fila-cuerpo">
+          <div class="fila-titulo">{{ item.nombre }}</div>
+          <div class="fila-subtitulo">{{ item.cantidad }} unidades</div>
+        </div>
+        <div class="fila-final">
+          <div class="fila-titulo">{{ item.total | moneda }}</div>
+        </div>
+      </div>
+    } @empty {
+      <div class="vacio">Las ventas de hoy aparecen al cerrar el día.</div>
+    }
+  </div>
+
+  @if (porReponer().length) {
+    <h2 class="etiqueta-seccion">
+      Por reponer ({{ porReponer().length }})
+      <a routerLink="/panel/inventario">Inventario</a>
+    </h2>
+    <div class="lista lista-desplazable">
+      @for (insumo of porReponer(); track insumo.id) {
+        <div class="fila">
+          <div class="fila-cuerpo">
+            <div class="fila-titulo">{{ insumo.nombre }}</div>
+            <div class="fila-subtitulo">{{ insumo.categoria }}</div>
+          </div>
+          <span class="insignia insignia-roja">{{ insumo.cantidad }} {{ insumo.unidad }}</span>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<app-hoja
+  [abierta]="hoja() !== null"
+  [etiqueta]="hoja() === 'caja' ? 'Caja' : hoja() === 'base' ? 'Base' : 'Vasos del día'"
+  (cerrar)="hoja.set(null)"
+>
+  @if (hoja() === 'caja') {
+    <app-ajuste-caja [saldo]="saldoCaja() ?? 0" (ajustado)="recargarCaja()" (cerrar)="hoja.set(null)" />
+  } @else if (hoja() === 'base') {
+    <app-ajuste-base [base]="base()" (guardado)="alGuardarBase($event)" (cerrar)="hoja.set(null)" />
+  } @else if (hoja() === 'vasos' && vasosEnEdicion()) {
+    <app-ajuste-vasos [vasos]="vasosEnEdicion()!" (guardado)="alGuardarVasos()" (cerrar)="hoja.set(null)" />
+  }
+</app-hoja>

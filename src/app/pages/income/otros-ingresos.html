@@ -1,0 +1,96 @@
+<div class="pagina">
+  <app-encabezado titulo="Otros ingresos" volver="/panel/mas" />
+
+  @if (!configurado) {
+    <div class="tarjeta">
+      <div class="fila-titulo">Conecta Supabase</div>
+      <p class="texto-secundario" style="margin: 6px 0 0; font-size: 15px">
+        Pon la URL y la anon key de tu proyecto en
+        <strong>src/environments/entorno.ts</strong> y recarga la página.
+      </p>
+    </div>
+  } @else {
+    <div class="tarjeta tarjeta-oscura">
+      <div class="dato-etiqueta">Este mes</div>
+      <div class="dato-valor-grande">{{ totalMes() | moneda }}</div>
+      <div class="dato-nota" style="color: var(--azul)">Por fuera del negocio</div>
+    </div>
+    <p class="nota-formulario">
+      Suman a la caja. En Cierres salen aparte de las ventas del negocio.
+    </p>
+
+    <form (submit)="registrar($event)" novalidate>
+      <h2 class="etiqueta-seccion">Agregar ingreso</h2>
+      <div class="lista">
+        <label class="fila campo" for="ingreso-monto">
+          <span class="campo-etiqueta">Monto</span>
+          <app-campo-moneda idCampo="ingreso-monto" [(valor)]="monto" />
+        </label>
+        <label class="fila campo" for="ingreso-descripcion">
+          <span class="campo-etiqueta">¿De qué?</span>
+          <input
+            id="ingreso-descripcion"
+            type="text"
+            placeholder="Ej: arriendo, trabajo extra"
+            autocomplete="off"
+            maxlength="80"
+            [value]="descripcion()"
+            (input)="descripcion.set($any($event.target).value)"
+          />
+        </label>
+        <label class="fila campo" for="ingreso-fecha">
+          <span class="campo-etiqueta">Fecha</span>
+          <input
+            id="ingreso-fecha"
+            type="date"
+            [max]="hoy"
+            [value]="fecha()"
+            (change)="fecha.set($any($event.target).value)"
+          />
+        </label>
+      </div>
+      <button
+        type="submit"
+        class="boton boton-primario boton-bloque"
+        style="margin-top: 12px"
+        [disabled]="!valido() || guardando()"
+      >
+        {{ guardando() ? 'Guardando…' : 'Agregar a la caja' }}
+      </button>
+    </form>
+
+    @if (error()) {
+      <div class="aviso-error" role="alert">
+        {{ error() }}
+        <button class="boton-texto" style="display: block; padding-bottom: 0" (click)="cargar()">
+          Reintentar
+        </button>
+      </div>
+    }
+
+    <h2 class="etiqueta-seccion">{{ cargando() ? 'Cargando…' : 'Registrados' }}</h2>
+    @if (!cargando()) {
+      <div class="lista lista-desplazable">
+        @for (ingreso of ingresos(); track ingreso.id) {
+          <div class="fila">
+            <div class="fila-cuerpo">
+              <div class="fila-titulo">{{ ingreso.descripcion }}</div>
+              <div class="fila-subtitulo">{{ ingreso.fecha | fechaCorta }}</div>
+            </div>
+            <span class="texto-verde" style="font-weight: 600">+{{ ingreso.monto | moneda }}</span>
+            <button
+              type="button"
+              class="boton-pequeno peligro"
+              [disabled]="guardando()"
+              (click)="eliminar(ingreso)"
+            >
+              {{ borrandoId() === ingreso.id ? '¿Borrar?' : 'Borrar' }}
+            </button>
+          </div>
+        } @empty {
+          <div class="vacio">Aún no has registrado otros ingresos.</div>
+        }
+      </div>
+    }
+  }
+</div>
