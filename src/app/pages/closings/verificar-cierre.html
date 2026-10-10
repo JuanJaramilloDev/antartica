@@ -99,6 +99,16 @@
   Corregir vasos
 </button>
 
+@if (cierre().conLicor) {
+  <h3 class="etiqueta-seccion">Con licor</h3>
+  <div class="lista">
+    <div class="fila">
+      <span class="fila-cuerpo">{{ cierre().conLicor }} {{ cierre().conLicor === 1 ? 'vaso' : 'vasos' }} con licor</span>
+      <strong class="texto-verde">+{{ cierre().totalLicor | moneda }}</strong>
+    </div>
+  </div>
+}
+
 @if (jugosUsados().length) {
   <h3 class="etiqueta-seccion">Jugos usados</h3>
   <div class="lista">

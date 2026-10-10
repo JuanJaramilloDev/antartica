@@ -11,7 +11,7 @@ interface FilaVenta {
   costo_unitario: number;
   total: number;
   ganancia: number;
-  productos: { nombre: string } | null;
+  productos: { nombre: string; es_adicional: boolean } | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -22,7 +22,7 @@ export class VentasService {
     const { data, error } = await this.db
       .from('ventas')
       .select(
-        'id, fecha, producto_id, cantidad, precio_unitario, costo_unitario, total, ganancia, productos(nombre)',
+        'id, fecha, producto_id, cantidad, precio_unitario, costo_unitario, total, ganancia, productos(nombre, es_adicional)',
       )
       .gte('fecha', fecha)
       .order('fecha', { ascending: false })
@@ -38,6 +38,7 @@ export class VentasService {
       costoUnitario: Number(f.costo_unitario),
       total: Number(f.total),
       ganancia: Number(f.ganancia),
+      esAdicional: f.productos?.es_adicional ?? false,
     }));
   }
 }

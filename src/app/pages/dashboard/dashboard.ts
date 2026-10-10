@@ -73,7 +73,13 @@ export class Dashboard {
   });
 
   protected readonly totalHoy = computed(() => sumar(this.ventasHoy().map((v) => v.total)));
-  protected readonly unidadesHoy = computed(() => sumar(this.ventasHoy().map((v) => v.cantidad)));
+  protected readonly unidadesHoy = computed(() =>
+    sumar(
+      this.ventas()
+        .filter((v) => diasDesde(v.fecha) === 0 && !v.esAdicional)
+        .map((v) => v.cantidad),
+    ),
+  );
   protected readonly gananciaHoy = computed(() =>
     sumar(this.ventas().filter((v) => diasDesde(v.fecha) === 0).map((v) => v.ganancia)),
   );

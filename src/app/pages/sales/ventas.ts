@@ -38,7 +38,7 @@ export class Ventas {
 
   protected readonly total = computed(() => this.ventas().reduce((t, v) => t + v.total, 0));
   protected readonly ganancia = computed(() => this.ventas().reduce((t, v) => t + v.ganancia, 0));
-  protected readonly unidades = computed(() => this.ventas().reduce((t, v) => t + v.cantidad, 0));
+  protected readonly unidades = computed(() => this.ventas().reduce((t, v) => t + (v.esAdicional ? 0 : v.cantidad), 0));
 
   constructor() {
     if (this.configurado) {

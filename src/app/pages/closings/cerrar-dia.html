@@ -80,6 +80,28 @@
     }
   </p>
 
+  <h3 class="etiqueta-seccion">Con licor</h3>
+  <div class="lista">
+    <div class="fila">
+      <div class="fila-cuerpo">
+        <div class="fila-titulo">Vasos con licor</div>
+        <div class="fila-subtitulo" [class.texto-verde]="conLicor() > 0">
+          @if (conLicor()) {
+            Suma {{ totalLicor() | moneda }}
+          } @else {
+            {{ precioLicor() | moneda }}
+          }
+        </div>
+      </div>
+      <app-contador
+        idCampo="cerrar-licor"
+        etiqueta="Vasos con licor"
+        [valor]="conLicor()"
+        (valorChange)="conLicor.set(redondear($event))"
+      />
+    </div>
+  </div>
+
   @if (!cargando()) {
     <h3 class="etiqueta-seccion">Empleada</h3>
     <div class="lista">

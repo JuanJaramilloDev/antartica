@@ -20,6 +20,7 @@ export interface Venta {
   costoUnitario: number;
   total: number;
   ganancia: number;
+  esAdicional: boolean;
 }
 
 export type EstadoPrestamo = 'pendiente' | 'pagado';
@@ -105,6 +106,8 @@ export interface CierreDia {
   nota: string | null;
   cerradoPorNombre: string | null;
   verificadoEn: string | null;
+  conLicor: number;
+  totalLicor: number;
 }
 
 export type EstadoCierre = 'pendiente' | 'verificado';
@@ -168,3 +171,5 @@ export interface Insumo {
 export type DatosInsumo = Omit<Insumo, 'id'>;
 
 export const CATEGORIA_JUGOS = 'Jugos';
+
+export const PRECIO_LICOR = 2000;

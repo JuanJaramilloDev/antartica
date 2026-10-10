@@ -12,6 +12,9 @@
     <div class="dato-valor-grande">{{ cargando() ? '—' : (debeHaber() | moneda) }}</div>
     <div class="dato-nota" style="color: var(--azul)">
       {{ vasosVendidos() }} vasos vendidos
+      @if (conLicor()) {
+        · {{ conLicor() }} con licor
+      }
     </div>
   </div>
   <p class="nota-formulario">Aparte de la base. Sale de los vasos que tenías menos los que sobraron.</p>
@@ -56,6 +59,28 @@
     }
   </div>
   <p class="nota-formulario">Cuenta los vasos que te quedaron y ponlos aquí. Las ventas del día se calculan solas.</p>
+
+  <h3 class="etiqueta-seccion">Con licor</h3>
+  <div class="lista">
+    <div class="fila">
+      <div class="fila-cuerpo">
+        <div class="fila-titulo">Vasos con licor</div>
+        <div class="fila-subtitulo" [class.texto-verde]="conLicor() > 0">
+          @if (conLicor()) {
+            Suma {{ totalLicor() | moneda }}
+          } @else {
+            {{ precioLicor() | moneda }}
+          }
+        </div>
+      </div>
+      <app-contador
+        idCampo="cierre-licor"
+        etiqueta="Vasos con licor"
+        [valor]="conLicor()"
+        (valorChange)="conLicor.set(redondear($event))"
+      />
+    </div>
+  </div>
 
   <h3 class="etiqueta-seccion">Plata del día</h3>
   <div class="lista">

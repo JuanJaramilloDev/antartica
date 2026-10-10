@@ -1,5 +1,13 @@
 import { Injectable, inject } from '@angular/core';
-import { Ajustes, CategoriaGasto, CierreDia, EstadoCierre, Gasto, ResumenMes } from '../models/modelos';
+import {
+  Ajustes,
+  CategoriaGasto,
+  CierreDia,
+  EstadoCierre,
+  Gasto,
+  PRECIO_LICOR,
+  ResumenMes,
+} from '../models/modelos';
 import { fechaIso } from '../utils/fechas';
 import { SupabaseService } from './supabase';
 
@@ -19,6 +27,8 @@ interface FilaCierre {
   nota: string | null;
   cerrado_por_nombre: string | null;
   verificado_en: string | null;
+  con_licor: number;
+  total_licor: number;
 }
 
 interface FilaMes {
@@ -63,6 +73,8 @@ function aCierre(f: FilaCierre): CierreDia {
     nota: f.nota,
     cerradoPorNombre: f.cerrado_por_nombre,
     verificadoEn: f.verificado_en,
+    conLicor: Number(f.con_licor),
+    totalLicor: Number(f.total_licor),
   };
 }
 
@@ -96,7 +108,7 @@ function aGasto(f: FilaGasto): Gasto {
 }
 
 const COLUMNAS_CIERRE =
-  'id, fecha, sueldo_empleada, vasos_vendidos, total_ventas, costo, total_final, ganancia, estado, efectivo, nequi, efectivo_contado, nota, cerrado_por_nombre, verificado_en';
+  'id, fecha, sueldo_empleada, vasos_vendidos, total_ventas, costo, total_final, ganancia, estado, efectivo, nequi, efectivo_contado, nota, cerrado_por_nombre, verificado_en, con_licor, total_licor';
 
 @Injectable({ providedIn: 'root' })
 export class CierresService {
@@ -167,6 +179,7 @@ export class CierresService {
     sobrantes: Record<string, number>,
     sueldoEmpleada: number,
     nota: string,
+    conLicor: number,
   ): Promise<void> {
     const { error } = await this.db.rpc('cerrar_dia_admin', {
       p_fecha: fecha,
@@ -174,19 +187,33 @@ export class CierresService {
       p_sobrantes: sobrantes,
       p_sueldo_empleada: sueldoEmpleada,
       p_nota: nota,
+      p_con_licor: conLicor,
     });
     if (error) throw error;
+  }
+
+  async precioLicor(): Promise<number> {
+    const { data, error } = await this.db
+      .from('productos')
+      .select('precio_venta')
+      .eq('es_adicional', true)
+      .limit(1)
+      .maybeSingle();
+    if (error) throw error;
+    return data ? Number(data.precio_venta) : PRECIO_LICOR;
   }
 
   async cerrarDiaEmpleada(
     sobrantes: Record<string, number>,
     efectivoContado: number | null,
     nota: string,
+    conLicor: number,
   ): Promise<void> {
     const { error } = await this.db.rpc('cerrar_dia_empleada', {
       p_sobrantes: sobrantes,
       p_efectivo_contado: efectivoContado,
       p_nota: nota,
+      p_con_licor: conLicor,
     });
     if (error) throw error;
   }

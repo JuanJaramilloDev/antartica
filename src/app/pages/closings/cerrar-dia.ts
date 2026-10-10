@@ -2,7 +2,7 @@ import { Component, OnInit, computed, inject, input, output, signal } from '@ang
 import { CampoMoneda } from '../../components/money-input/campo-moneda';
 import { Cargando } from '../../components/loading/cargando';
 import { Contador } from '../../components/stepper/contador';
-import { CierreDia, VasosDelDia } from '../../models/modelos';
+import { CierreDia, PRECIO_LICOR, VasosDelDia } from '../../models/modelos';
 import { MonedaPipe } from '../../pipes/moneda';
 import { CierresService } from '../../services/cierres';
 import { PedidosService } from '../../services/pedidos';
@@ -31,6 +31,8 @@ export class CerrarDia implements OnInit {
   protected readonly cierre = signal<CierreDia | null>(null);
   protected readonly registrados = signal(new Map<string, number>());
   protected readonly sobrantes = signal<Record<string, number>>({});
+  protected readonly conLicor = signal(0);
+  protected readonly precioLicor = signal(PRECIO_LICOR);
   protected readonly sueldo = signal<number | null>(null);
   protected readonly nota = signal('');
   protected readonly cargando = signal(true);
@@ -50,7 +52,10 @@ export class CerrarDia implements OnInit {
   );
 
   protected readonly vasosVendidos = computed(() => this.filas().reduce((t, f) => t + f.vendidos, 0));
-  protected readonly totalVentas = computed(() => this.filas().reduce((t, f) => t + f.total, 0));
+  protected readonly totalLicor = computed(() => this.conLicor() * this.precioLicor());
+  protected readonly totalVentas = computed(
+    () => this.filas().reduce((t, f) => t + f.total, 0) + this.totalLicor(),
+  );
   protected readonly debeHaber = computed(() => this.totalVentas() - (this.sueldo() ?? 0));
   protected readonly hayErrores = computed(() => this.filas().some((f) => f.sobran > f.tenia));
 
@@ -70,10 +75,11 @@ export class CerrarDia implements OnInit {
     this.cargando.set(true);
     this.error.set(null);
     try {
-      const [vasos, pedidos, cierre] = await Promise.all([
+      const [vasos, pedidos, cierre, precioLicor] = await Promise.all([
         this.vasosServicio.delDia(fecha),
         this.pedidosServicio.deFecha(fecha),
         this.cierres.cierreDeFecha(fecha),
+        this.cierres.precioLicor(),
       ]);
       if (fecha !== this.fecha()) return;
 
@@ -90,6 +96,8 @@ export class CerrarDia implements OnInit {
       this.sobrantes.set(Object.fromEntries(vasos.map((v) => [v.productoId, v.sobrantes ?? 0])));
       this.sueldo.set(cierre?.estado === 'verificado' ? cierre.sueldoEmpleada : this.sueldoPorDefecto());
       this.nota.set(cierre?.nota ?? '');
+      this.conLicor.set(cierre?.conLicor ?? 0);
+      this.precioLicor.set(precioLicor);
     } catch (error) {
       this.error.set(mensajeDeError(error));
     } finally {
@@ -101,6 +109,10 @@ export class CerrarDia implements OnInit {
     this.sobrantes.update((actual) => ({ ...actual, [productoId]: Math.round(cantidad) }));
   }
 
+  protected redondear(cantidad: number): number {
+    return Math.max(0, Math.round(cantidad));
+  }
+
   protected async guardar(evento: Event): Promise<void> {
     evento.preventDefault();
     if (this.hayErrores() || this.guardando() || this.cargando()) return;
@@ -108,7 +120,13 @@ export class CerrarDia implements OnInit {
     this.guardando.set(true);
     this.error.set(null);
     try {
-      await this.cierres.cerrarDiaAdmin(this.fecha(), this.sobrantes(), this.sueldo() ?? 0, this.nota());
+      await this.cierres.cerrarDiaAdmin(
+        this.fecha(),
+        this.sobrantes(),
+        this.sueldo() ?? 0,
+        this.nota(),
+        this.conLicor(),
+      );
       this.guardado.emit();
     } catch (error) {
       this.error.set(mensajeDeError(error));
