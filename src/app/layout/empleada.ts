@@ -4,8 +4,6 @@ import { BarraNavegacion, ItemNavegacion } from '../components/tab-bar/barra-nav
 import { SesionService } from '../services/sesion';
 
 const NAVEGACION_EMPLEADA: ItemNavegacion[] = [
-  { ruta: '/empleada/vender', etiqueta: 'Vender', icono: 'vender' },
-  { ruta: '/empleada/ventas', etiqueta: 'Mis ventas', icono: 'historial' },
   { ruta: '/empleada/diario', etiqueta: 'Diario', icono: 'diario' },
   { ruta: '/empleada/cuenta', etiqueta: 'Cuenta', icono: 'cuenta' },
 ];

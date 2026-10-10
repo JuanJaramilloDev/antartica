@@ -141,12 +141,6 @@ export interface JugoDelDia {
 
 export type MetodoPago = 'Efectivo' | 'Nequi';
 
-export interface ProductoVenta {
-  id: string;
-  nombre: string;
-  precioVenta: number;
-}
-
 export interface ItemPedido {
   nombre: string;
   cantidad: number;

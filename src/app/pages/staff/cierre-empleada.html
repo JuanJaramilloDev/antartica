@@ -8,17 +8,18 @@
   </header>
 
   <div class="tarjeta tarjeta-oscura">
-    <div class="dato-etiqueta">Registraste hoy</div>
-    <div class="dato-valor-grande">{{ totalRegistrado() | moneda }}</div>
+    <div class="dato-etiqueta">Debe haber</div>
+    <div class="dato-valor-grande">{{ cargando() ? '—' : (debeHaber() | moneda) }}</div>
     <div class="dato-nota" style="color: var(--azul)">
-      Efectivo {{ efectivoRegistrado() | moneda }} · Nequi {{ nequiRegistrado() | moneda }}
+      {{ vasosVendidos() }} vasos vendidos
     </div>
   </div>
+  <p class="nota-formulario">Aparte de la base. Sale de los vasos que tenías menos los que sobraron.</p>
 
-  <h3 class="etiqueta-seccion">¿Cuántos vasos sobraron?</h3>
+  <h3 class="etiqueta-seccion">¿Cuántos vasos te quedaron?</h3>
   <div class="lista">
     @if (cargando()) {
-      <div class="vacio">Cargando…</div>
+      <app-cargando />
     } @else {
       @for (fila of filas(); track fila.productoId) {
         <div class="fila">
@@ -27,22 +28,18 @@
             <div class="fila-subtitulo">
               Tenías {{ fila.tenia }}
               @if (fila.arrastre) {
-                ({{ fila.arrastre }} de antes + {{ fila.cantidad }} bajados)
+                ({{ fila.arrastre }} de antes + {{ fila.cantidad }} agregados)
               }
             </div>
             <div
               class="fila-subtitulo"
-              [class.texto-rojo]="fila.diferencia !== 0"
-              [class.texto-verde]="fila.diferencia === 0"
+              [class.texto-rojo]="fila.sobran > fila.tenia"
+              [class.texto-verde]="fila.sobran <= fila.tenia"
             >
               @if (fila.sobran > fila.tenia) {
                 Sobran más de los que tenías
-              } @else if (fila.diferencia === 0) {
-                Cuadra: vendiste {{ fila.porConteo }}
-              } @else if (fila.diferencia > 0) {
-                Faltan {{ fila.diferencia }} por registrar
               } @else {
-                Registraste {{ -fila.diferencia }} de más
+                Vendiste {{ fila.vendidos }} · {{ fila.total | moneda }}
               }
             </div>
           </div>
@@ -58,9 +55,9 @@
       }
     }
   </div>
-  <p class="nota-formulario">Cuenta los vasos que quedan y corrige si no coincide.</p>
+  <p class="nota-formulario">Cuenta los vasos que te quedaron y ponlos aquí. Las ventas del día se calculan solas.</p>
 
-  <h3 class="etiqueta-seccion">Plata en efectivo</h3>
+  <h3 class="etiqueta-seccion">Plata del día</h3>
   <div class="lista">
     <label class="fila campo" for="cierre-efectivo">
       <span class="campo-etiqueta">Tengo</span>
@@ -74,15 +71,15 @@
       [class.texto-rojo]="diferenciaEfectivo() !== 0"
     >
       @if (diferenciaEfectivo() === 0) {
-        Cuadra con lo que registraste en efectivo.
+        Cuadra con lo que debe haber.
       } @else if (diferenciaEfectivo()! > 0) {
-        Sobran {{ diferenciaEfectivo() | moneda }} frente a lo registrado.
+        Sobran {{ diferenciaEfectivo() | moneda }} frente a lo que debe haber.
       } @else {
-        Faltan {{ -diferenciaEfectivo()! | moneda }} frente a lo registrado.
+        Faltan {{ -diferenciaEfectivo()! | moneda }} frente a lo que debe haber.
       }
     </p>
   } @else {
-    <p class="nota-formulario">Cuenta el efectivo sin contar la base.</p>
+    <p class="nota-formulario">Opcional. Cuenta la plata sin contar la base.</p>
   }
 
   <h3 class="etiqueta-seccion">Nota</h3>

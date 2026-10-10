@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CampoMoneda } from '../../components/money-input/campo-moneda';
+import { Cargando } from '../../components/loading/cargando';
 import { Encabezado } from '../../components/page-header/encabezado';
 import { Ingreso } from '../../models/modelos';
 import { FechaCortaPipe } from '../../pipes/fecha-corta';
@@ -10,7 +11,7 @@ import { fechaIso } from '../../utils/fechas';
 
 @Component({
   selector: 'app-otros-ingresos',
-  imports: [Encabezado, CampoMoneda, MonedaPipe, FechaCortaPipe],
+  imports: [Cargando, Encabezado, CampoMoneda, MonedaPipe, FechaCortaPipe],
   templateUrl: './otros-ingresos.html',
 })
 export class OtrosIngresos {

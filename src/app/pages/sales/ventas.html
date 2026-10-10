@@ -22,7 +22,7 @@
     </div>
   </div>
   <p class="nota-formulario">
-    Las ventas las registra la empleada desde su cuenta. Los cierres los verificas en <a routerLink="/panel/mas/cierres" style="color: var(--azul-fuerte)">Cierres</a>.
+    Las ventas salen solas del cierre de cada día, con los vasos que había menos los que sobraron. Puedes cerrar un día tú mismo en <a routerLink="/panel/mas/cierres" style="color: var(--azul-fuerte)">Cierres</a>.
   </p>
 
   @if (error()) {
@@ -33,7 +33,11 @@
       </button>
     </div>
   } @else {
-    <h2 class="etiqueta-seccion">{{ cargando() ? 'Cargando…' : 'Registro' }}</h2>
+    @if (cargando()) {
+      <app-cargando />
+    } @else {
+      <h2 class="etiqueta-seccion">Registro</h2>
+    }
     @if (!cargando()) {
       <div class="lista">
         @for (venta of ventas(); track venta.id) {

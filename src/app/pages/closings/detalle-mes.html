@@ -124,7 +124,7 @@
 <h3 class="etiqueta-seccion">Gastos del mes ({{ gastosManuales().length }})</h3>
 <div class="lista lista-desplazable">
   @if (cargando()) {
-    <div class="vacio">Cargando…</div>
+    <app-cargando />
   } @else {
     @for (gasto of gastosManuales(); track gasto.id) {
       <div class="fila">

@@ -149,13 +149,33 @@ export class CierresService {
   }
 
   async cierreDeHoy(): Promise<CierreDia | null> {
+    return this.cierreDeFecha(fechaIso());
+  }
+
+  async cierreDeFecha(fecha: string): Promise<CierreDia | null> {
     const { data, error } = await this.db
       .from('cierres_resumen')
       .select(COLUMNAS_CIERRE)
-      .eq('fecha', fechaIso())
+      .eq('fecha', fecha)
       .maybeSingle();
     if (error) throw error;
     return data ? aCierre(data as FilaCierre) : null;
+  }
+
+  async cerrarDiaAdmin(
+    fecha: string,
+    sobrantes: Record<string, number>,
+    sueldoEmpleada: number,
+    nota: string,
+  ): Promise<void> {
+    const { error } = await this.db.rpc('cerrar_dia_admin', {
+      p_fecha: fecha,
+      p_bajados: {},
+      p_sobrantes: sobrantes,
+      p_sueldo_empleada: sueldoEmpleada,
+      p_nota: nota,
+    });
+    if (error) throw error;
   }
 
   async cerrarDiaEmpleada(

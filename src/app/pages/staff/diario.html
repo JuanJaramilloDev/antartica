@@ -11,7 +11,7 @@
   }
 
   @if (cargando()) {
-    <h2 class="etiqueta-seccion">Cargando…</h2>
+    <app-cargando />
   } @else {
     <h2 class="etiqueta-seccion">Vasos</h2>
     <div class="vasos">
@@ -19,16 +19,7 @@
         <div class="tarjeta vaso">
           <div class="vaso-info">
             <div class="vaso-nombre">{{ item.nombre }}</div>
-            <div class="vaso-detalle">
-              @if (item.cantidad) {
-                Bajaste {{ item.cantidad }} · {{ paquetes(item) }}
-              } @else {
-                Aún no has bajado
-              }
-            </div>
-            @if (item.arrastre) {
-              <div class="vaso-detalle texto-verde">Quedaron {{ item.arrastre }} del último cierre</div>
-            }
+            <div class="vaso-detalle">Disponibles {{ item.arrastre + item.cantidad }}</div>
             @if (item.paquetesEnInventario !== null) {
               <div class="vaso-detalle" [class.texto-rojo]="item.paquetesEnInventario < 1">
                 Quedan {{ item.paquetesEnInventario }} paquetes
@@ -39,7 +30,7 @@
             <button
               type="button"
               class="boton-pequeno"
-              [disabled]="ocupado() !== null || item.cantidad < item.unidadesPaquete!"
+              [disabled]="ocupado() !== null || verificado() || item.cantidad < item.unidadesPaquete!"
               [attr.aria-label]="'Quitar un paquete de ' + item.nombre"
               (click)="cambiarVasos(item, -1)"
             >
@@ -48,7 +39,7 @@
             <button
               type="button"
               class="boton boton-azul agregar"
-              [disabled]="ocupado() !== null"
+              [disabled]="ocupado() !== null || verificado()"
               (click)="cambiarVasos(item, 1)"
             >
               {{ ocupado() === item.productoId ? '…' : '+ ' + item.unidadesPaquete }}
@@ -74,7 +65,7 @@
           <button
             type="button"
             class="jugo-boton"
-            [disabled]="ocupado() !== null || jugo.enInventario < 1"
+            [disabled]="ocupado() !== null || verificado() || jugo.enInventario < 1"
             (click)="cambiarJugo(jugo, 1)"
           >
             <span class="jugo-color" [style.background]="color(jugo.nombre)"></span>
@@ -94,7 +85,7 @@
             <button
               type="button"
               class="jugo-quitar"
-              [disabled]="ocupado() !== null"
+              [disabled]="ocupado() !== null || verificado()"
               [attr.aria-label]="'Quitar una bolsa de ' + jugo.nombre"
               (click)="cambiarJugo(jugo, -1)"
             >
@@ -109,5 +100,42 @@
     <p class="nota-formulario">
       Toca un color cada vez que uses una bolsa.
     </p>
+
+    <h2 class="etiqueta-seccion">Cierre</h2>
+    @if (cierre(); as c) {
+      <div class="tarjeta estado-cierre" [class.verificado]="verificado()">
+        <div class="vaso-nombre">
+          {{ verificado() ? 'Día cerrado y verificado ✓' : 'Cierre enviado' }}
+        </div>
+        <div class="vaso-detalle">
+          @if (verificado()) {
+            El administrador ya revisó el día. No se pueden hacer más cambios.
+          } @else {
+            Esperando que el administrador lo verifique.
+          }
+        </div>
+        @if (!verificado()) {
+          <button type="button" class="boton-pequeno" style="margin-top: 10px" (click)="cerrando.set(true)">
+            Corregir cierre
+          </button>
+        }
+      </div>
+    } @else {
+      <button
+        type="button"
+        class="boton boton-primario boton-bloque"
+        style="height: 54px"
+        (click)="cerrando.set(true)"
+      >
+        Cerrar el día
+      </button>
+      <p class="nota-formulario">Al terminar, cuenta los vasos que te quedaron y cierra el día.</p>
+    }
   }
 </div>
+
+<app-hoja [abierta]="cerrando()" etiqueta="Cerrar el día" (cerrar)="cerrando.set(false)">
+  @if (cerrando()) {
+    <app-cierre-empleada [cierre]="cierre()" (enviado)="alEnviarCierre()" (cancelar)="cerrando.set(false)" />
+  }
+</app-hoja>

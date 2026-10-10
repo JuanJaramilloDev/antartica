@@ -68,7 +68,11 @@
       </div>
     }
 
-    <h2 class="etiqueta-seccion">{{ cargando() ? 'Cargando…' : 'Registrados' }}</h2>
+    @if (cargando()) {
+      <app-cargando />
+    } @else {
+      <h2 class="etiqueta-seccion">Registrados</h2>
+    }
     @if (!cargando()) {
       <div class="lista lista-desplazable">
         @for (ingreso of ingresos(); track ingreso.id) {

@@ -43,14 +43,7 @@
           <button type="button" class="fila-cuerpo vasos-toque" (click)="editarVasos(item)">
             <span class="fila-titulo" style="display: block">{{ item.nombre }}</span>
             <span class="fila-subtitulo" style="display: block">
-              @if (item.cantidad) {
-                {{ item.cantidad }} bajados{{ item.unidadesPaquete ? ' · ' + paquetes(item) : '' }}
-              } @else {
-                Aún no has bajado vasos
-              }
-              @if (item.arrastre) {
-                <span class="texto-verde">· {{ item.arrastre }} de antes</span>
-              }
+              Disponibles {{ item.arrastre + item.cantidad }}
               @if (item.paquetesEnInventario !== null) {
                 <span [class.texto-rojo]="item.paquetesEnInventario < 1">
                   · Quedan {{ item.paquetesEnInventario }} en inventario

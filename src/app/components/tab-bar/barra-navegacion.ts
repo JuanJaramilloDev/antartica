@@ -7,8 +7,6 @@ export type IconoNavegacion =
   | 'productos'
   | 'inventario'
   | 'mas'
-  | 'vender'
-  | 'historial'
   | 'diario'
   | 'cuenta';
 

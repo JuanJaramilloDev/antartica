@@ -21,10 +21,13 @@
 </div>
 
 <div class="tarjeta tarjeta-oscura" style="margin-top: 12px">
-  <div class="dato-etiqueta">Ventas registradas</div>
+  <div class="dato-etiqueta">Ventas del día</div>
   <div class="dato-valor-grande">{{ cierre().totalVentas | moneda }}</div>
   <div class="dato-nota" style="color: var(--azul)">
-    {{ cierre().vasosVendidos }} vasos · Efectivo {{ cierre().efectivo | moneda }} · Nequi {{ cierre().nequi | moneda }}
+    {{ cierre().vasosVendidos }} vasos por conteo
+    @if (cierre().nequi) {
+      · Nequi {{ cierre().nequi | moneda }}
+    }
   </div>
 </div>
 
@@ -37,11 +40,11 @@
 <h3 class="etiqueta-seccion">Efectivo</h3>
 <div class="lista">
   <div class="fila">
-    <span class="fila-cuerpo texto-secundario">Registrado en efectivo</span>
-    <span>{{ cierre().efectivo | moneda }}</span>
+    <span class="fila-cuerpo texto-secundario">Debe haber en efectivo</span>
+    <span>{{ efectivoEsperado() | moneda }}</span>
   </div>
   <div class="fila">
-    <span class="fila-cuerpo texto-secundario">Ella contó</span>
+    <span class="fila-cuerpo texto-secundario">Se contó</span>
     @if (cierre().efectivoContado !== null) {
       <span>{{ cierre().efectivoContado | moneda }}</span>
     } @else {
@@ -61,7 +64,7 @@
 <h3 class="etiqueta-seccion">Vasos</h3>
 <div class="lista">
   @if (cargando()) {
-    <div class="vacio">Cargando…</div>
+    <app-cargando />
   } @else {
     @for (fila of filas(); track fila.productoId) {
       <div class="fila">
@@ -70,20 +73,18 @@
           <div class="fila-subtitulo">
             Tenía {{ fila.tenia }}
             @if (fila.arrastre) {
-              ({{ fila.arrastre }} de antes + {{ fila.cantidad }} bajados)
+              ({{ fila.arrastre }} de antes + {{ fila.cantidad }} agregados)
             }
             · sobran {{ fila.sobran }}
           </div>
-          <div class="fila-subtitulo">
-            Por conteo {{ fila.porConteo }} · registradas {{ fila.vendidos }}
-          </div>
+          @if (fila.registradas) {
+            <div class="fila-subtitulo">{{ fila.registradas }} registradas una por una</div>
+          }
         </div>
-        @if (fila.diferencia === 0) {
-          <span class="insignia insignia-verde">Cuadra</span>
-        } @else if (fila.diferencia > 0) {
-          <span class="insignia insignia-roja">Faltan {{ fila.diferencia }}</span>
+        @if (fila.deMas) {
+          <span class="insignia insignia-naranja">{{ fila.deMas }} de más</span>
         } @else {
-          <span class="insignia insignia-naranja">Sobran {{ -fila.diferencia }}</span>
+          <span class="insignia insignia-verde">Vendidos {{ fila.porConteo }}</span>
         }
       </div>
     } @empty {
@@ -92,8 +93,11 @@
   }
 </div>
 <p class="nota-formulario">
-  "Faltan" = vasos que salieron pero no se registraron como venta.
+  Vendidos = los que había menos los que sobraron. "De más" = se registraron más ventas que vasos salieron.
 </p>
+<button type="button" class="boton-pequeno" style="margin: 10px 16px 0" [disabled]="guardando()" (click)="corregir.emit()">
+  Corregir vasos
+</button>
 
 @if (jugosUsados().length) {
   <h3 class="etiqueta-seccion">Jugos usados</h3>
@@ -144,5 +148,5 @@
   >
     {{ confirmandoReabrir() ? 'Toca de nuevo para reabrir' : 'Reabrir para que lo corrija' }}
   </button>
-  <p class="nota-formulario">Borra este cierre y ella puede volver a cerrar el día.</p>
+  <p class="nota-formulario">Borra este cierre y el día se puede volver a cerrar.</p>
 </div>

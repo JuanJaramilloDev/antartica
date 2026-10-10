@@ -83,7 +83,7 @@
 <h3 class="etiqueta-seccion">Abonos ({{ abonos().length }})</h3>
 <div class="lista lista-desplazable">
   @if (cargandoAbonos()) {
-    <div class="vacio">Cargando…</div>
+    <app-cargando />
   } @else {
     @for (abono of abonos(); track abono.id) {
       <div class="fila">

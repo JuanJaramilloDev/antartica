@@ -19,17 +19,7 @@ export const routes: Routes = [
     canActivate: [soloEmpleada],
     loadComponent: () => import('./layout/empleada').then((m) => m.Empleada),
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'vender' },
-      {
-        path: 'vender',
-        title: 'Vender · Antártica',
-        loadComponent: () => import('./pages/staff/vender').then((m) => m.Vender),
-      },
-      {
-        path: 'ventas',
-        title: 'Mis ventas · Antártica',
-        loadComponent: () => import('./pages/staff/mis-ventas').then((m) => m.MisVentas),
-      },
+      { path: '', pathMatch: 'full', redirectTo: 'diario' },
       {
         path: 'diario',
         title: 'Diario · Antártica',
@@ -40,6 +30,7 @@ export const routes: Routes = [
         title: 'Cuenta · Antártica',
         loadComponent: () => import('./pages/staff/cuenta').then((m) => m.Cuenta),
       },
+      { path: '**', redirectTo: 'diario' },
     ],
   },
   {

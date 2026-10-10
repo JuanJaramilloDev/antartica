@@ -1,7 +1,8 @@
 import { Component, OnInit, computed, inject, input, output, signal } from '@angular/core';
 import { CampoMoneda } from '../../components/money-input/campo-moneda';
+import { Cargando } from '../../components/loading/cargando';
 import { Contador } from '../../components/stepper/contador';
-import { CierreDia, Pedido, VasosDelDia } from '../../models/modelos';
+import { CierreDia, VasosDelDia } from '../../models/modelos';
 import { MonedaPipe } from '../../pipes/moneda';
 import { CierresService } from '../../services/cierres';
 import { mensajeDeError } from '../../services/supabase';
@@ -10,14 +11,13 @@ import { fechaIso } from '../../utils/fechas';
 
 @Component({
   selector: 'app-cierre-empleada',
-  imports: [CampoMoneda, Contador, MonedaPipe],
+  imports: [Cargando, CampoMoneda, Contador, MonedaPipe],
   templateUrl: './cierre-empleada.html',
 })
 export class CierreEmpleada implements OnInit {
   private readonly vasosServicio = inject(VasosService);
   private readonly cierres = inject(CierresService);
 
-  readonly pedidos = input.required<Pedido[]>();
   readonly cierre = input<CierreDia | null>(null);
   readonly enviado = output<void>();
   readonly cancelar = output<void>();
@@ -30,38 +30,22 @@ export class CierreEmpleada implements OnInit {
   protected readonly enviando = signal(false);
   protected readonly error = signal<string | null>(null);
 
-  private readonly registradosPorNombre = computed(() => {
-    const mapa = new Map<string, number>();
-    for (const pedido of this.pedidos()) {
-      for (const item of pedido.items) mapa.set(item.nombre, (mapa.get(item.nombre) ?? 0) + item.cantidad);
-    }
-    return mapa;
-  });
-
   protected readonly filas = computed(() =>
     this.vasos()
       .map((v) => {
         const tenia = v.arrastre + v.cantidad;
         const sobran = this.sobrantes()[v.productoId] ?? 0;
-        const registrados = this.registradosPorNombre().get(v.nombre) ?? 0;
-        const porConteo = tenia - sobran;
-        return { ...v, tenia, sobran, registrados, porConteo, diferencia: porConteo - registrados };
+        const vendidos = Math.max(tenia - sobran, 0);
+        return { ...v, tenia, sobran, vendidos, total: vendidos * v.precioVenta };
       })
-      .filter((f) => f.tenia > 0 || f.registrados > 0),
+      .filter((f) => f.tenia > 0),
   );
 
-  protected readonly totalRegistrado = computed(() =>
-    this.pedidos().reduce((t, p) => t + p.total, 0),
-  );
-  protected readonly efectivoRegistrado = computed(() =>
-    this.pedidos()
-      .filter((p) => p.metodoPago === 'Efectivo')
-      .reduce((t, p) => t + p.total, 0),
-  );
-  protected readonly nequiRegistrado = computed(() => this.totalRegistrado() - this.efectivoRegistrado());
+  protected readonly vasosVendidos = computed(() => this.filas().reduce((t, f) => t + f.vendidos, 0));
+  protected readonly debeHaber = computed(() => this.filas().reduce((t, f) => t + f.total, 0));
   protected readonly diferenciaEfectivo = computed(() => {
     const contado = this.efectivoContado();
-    return contado === null ? null : contado - this.efectivoRegistrado();
+    return contado === null ? null : contado - this.debeHaber();
   });
   protected readonly hayErrores = computed(() => this.filas().some((f) => f.sobran > f.tenia));
 
@@ -77,15 +61,7 @@ export class CierreEmpleada implements OnInit {
     try {
       const vasos = await this.vasosServicio.delDia(fechaIso());
       this.vasos.set(vasos);
-      const registrados = this.registradosPorNombre();
-      this.sobrantes.set(
-        Object.fromEntries(
-          vasos.map((v) => [
-            v.productoId,
-            v.sobrantes ?? Math.max(v.arrastre + v.cantidad - (registrados.get(v.nombre) ?? 0), 0),
-          ]),
-        ),
-      );
+      this.sobrantes.set(Object.fromEntries(vasos.map((v) => [v.productoId, v.sobrantes ?? 0])));
     } catch (error) {
       this.error.set(mensajeDeError(error));
     } finally {

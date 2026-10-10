@@ -20,8 +20,8 @@ import { fechaIso } from '../../utils/fechas';
 
       <div class="lista">
         <div class="fila">
-          <label class="fila-cuerpo" for="vasos-cantidad">Vasos bajados hoy</label>
-          <app-contador idCampo="vasos-cantidad" etiqueta="Vasos bajados hoy" [(valor)]="cantidad" />
+          <label class="fila-cuerpo" for="vasos-cantidad">Vasos agregados hoy</label>
+          <app-contador idCampo="vasos-cantidad" etiqueta="Vasos agregados hoy" [(valor)]="cantidad" />
         </div>
       </div>
 

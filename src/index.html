@@ -19,8 +19,76 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    .vaso-carga {
+      position: relative;
+      width: var(--vaso, 34px);
+      aspect-ratio: 11 / 14;
+      overflow: hidden;
+      border-radius: 3px 3px 7px 7px;
+      clip-path: polygon(0 0, 100% 0, 85% 100%, 15% 100%);
+      background: rgba(90, 180, 245, 0.22);
+    }
+    .vaso-carga::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(#8fd0ff, #5ab4f5 30%, #1e8fe1);
+      animation: llenar-vaso 1.5s ease-in-out infinite;
+    }
+    @keyframes llenar-vaso {
+      0% {
+        transform: translateY(100%);
+        opacity: 1;
+      }
+      70% {
+        transform: translateY(8%);
+        opacity: 1;
+      }
+      85% {
+        transform: translateY(8%);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(8%);
+        opacity: 0;
+      }
+    }
+    #inicio {
+      --vaso: 44px;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      background: #ffffff;
+      transition: opacity 0.35s ease;
+    }
+    #inicio.oculto {
+      opacity: 0;
+      pointer-events: none;
+    }
+    #inicio img {
+      width: 180px;
+      height: 180px;
+      object-fit: contain;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .vaso-carga::after {
+        animation-duration: 3s;
+      }
+    }
+  </style>
 </head>
 <body>
+  <div id="inicio" role="status" aria-label="Cargando Antártica">
+    <img src="icons/logo-320.webp" alt="" width="180" height="180">
+    <div class="vaso-carga"></div>
+  </div>
   <app-root></app-root>
 </body>
 </html>

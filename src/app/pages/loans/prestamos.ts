@@ -1,4 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { Cargando } from '../../components/loading/cargando';
 import { Hoja } from '../../components/bottom-sheet/hoja';
 import { Encabezado } from '../../components/page-header/encabezado';
 import { EstadoPrestamo, Prestamo } from '../../models/modelos';
@@ -14,7 +15,7 @@ type Vista = 'nuevo' | 'detalle' | 'editar';
 
 @Component({
   selector: 'app-prestamos',
-  imports: [Encabezado, Hoja, FormularioPrestamo, DetallePrestamo, MonedaPipe, FechaCortaPipe],
+  imports: [Cargando, Encabezado, Hoja, FormularioPrestamo, DetallePrestamo, MonedaPipe, FechaCortaPipe],
   templateUrl: './prestamos.html',
 })
 export class Prestamos {

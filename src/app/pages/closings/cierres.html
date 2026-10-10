@@ -9,7 +9,7 @@
       </button>
     </div>
   } @else if (cargando()) {
-    <h2 class="etiqueta-seccion">Cargando…</h2>
+    <app-cargando />
   } @else {
     @if (porVerificar().length) {
       <h2 class="etiqueta-seccion" style="margin-top: 0">Por verificar ({{ porVerificar().length }})</h2>
@@ -43,8 +43,11 @@
       <div class="tarjeta">
         <div class="fila-titulo">Hoy aún no se ha cerrado el día</div>
         <p class="texto-secundario" style="margin: 4px 0 0; font-size: 14px">
-          La empleada cierra desde su cuenta y aquí te aparece para verificarlo.
+          La empleada cierra desde su cuenta y aquí te aparece para verificarlo. Si no lo hace, ciérralo tú.
         </p>
+        <button type="button" class="boton boton-azul boton-bloque" style="margin-top: 12px" (click)="cerrarDia(hoy)">
+          Cerrar el día de hoy
+        </button>
       </div>
     }
 
@@ -67,7 +70,10 @@
       </div>
     </div>
 
-    <h2 class="etiqueta-seccion">Días cerrados</h2>
+    <h2 class="etiqueta-seccion">
+      Días cerrados
+      <a href="" (click)="$event.preventDefault(); cerrarDia(hoy)">Cerrar un día</a>
+    </h2>
     <div class="lista lista-desplazable">
       @for (cierre of cierres(); track cierre.id) {
         <button class="fila" (click)="abrirCierre(cierre)">
@@ -148,9 +154,18 @@
           [cierre]="cierre"
           [sueldoPorDefecto]="ajustes().sueldoEmpleadaDia"
           (cambiado)="alGuardarCierre()"
+          (corregir)="cerrarDia(cierre.fecha)"
           (cerrar)="cerrarHoja()"
         />
       }
+    }
+    @case ('cerrar') {
+      <app-cerrar-dia
+        [fechaInicial]="fechaACerrar()"
+        [sueldoPorDefecto]="ajustes().sueldoEmpleadaDia"
+        (guardado)="alGuardarCierre()"
+        (cancelar)="cerrarHoja()"
+      />
     }
     @case ('mes') {
       @if (mesSeleccionado(); as mes) {

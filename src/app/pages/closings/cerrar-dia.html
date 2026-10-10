@@ -1,0 +1,122 @@
+<form (submit)="guardar($event)" novalidate>
+  <header class="hoja-barra">
+    <button type="button" class="boton-texto" (click)="cancelar.emit()">Cancelar</button>
+    <h2>Cerrar un día</h2>
+    <button type="submit" class="boton-texto" [disabled]="hayErrores() || guardando() || cargando()">
+      {{ guardando() ? 'Guardando…' : 'Guardar' }}
+    </button>
+  </header>
+
+  <div class="lista">
+    <label class="fila campo" for="cerrar-fecha">
+      <span class="campo-etiqueta">Día</span>
+      <input
+        id="cerrar-fecha"
+        type="date"
+        [max]="hoy"
+        [value]="fecha()"
+        (change)="cambiarFecha($any($event.target).value)"
+      />
+    </label>
+  </div>
+  @if (cierre(); as c) {
+    <p class="nota-formulario">
+      Este día ya tiene cierre{{ c.cerradoPorNombre ? ' de ' + c.cerradoPorNombre : '' }}. Al guardar lo corriges y queda verificado.
+    </p>
+  }
+
+  <div class="tarjeta tarjeta-oscura" style="margin-top: 12px">
+    <div class="dato-etiqueta">Debe haber</div>
+    <div class="dato-valor-grande">{{ cargando() ? '—' : (debeHaber() | moneda) }}</div>
+    <div class="dato-nota" style="color: var(--azul)">
+      {{ vasosVendidos() }} vasos · Ventas {{ totalVentas() | moneda }} · Empleada −{{ sueldo() ?? 0 | moneda }}
+    </div>
+  </div>
+  <p class="nota-formulario">Aparte de la base.</p>
+
+  <h3 class="etiqueta-seccion">¿Cuántos vasos quedaron?</h3>
+  <div class="lista">
+    @if (cargando()) {
+      <app-cargando />
+    } @else {
+      @for (fila of filas(); track fila.productoId) {
+        <div class="fila">
+          <div class="fila-cuerpo">
+            <div class="fila-titulo">{{ fila.nombre }}</div>
+            <div class="fila-subtitulo">
+              Tenías {{ fila.tenia }}
+              @if (fila.arrastre) {
+                ({{ fila.arrastre }} de antes + {{ fila.cantidad }} agregados)
+              }
+            </div>
+            <div
+              class="fila-subtitulo"
+              [class.texto-rojo]="fila.sobran > fila.tenia"
+              [class.texto-verde]="fila.sobran <= fila.tenia"
+            >
+              @if (fila.sobran > fila.tenia) {
+                Sobran más de los que tenías
+              } @else {
+                Vendiste {{ fila.vendidos }} · {{ fila.total | moneda }}
+              }
+            </div>
+          </div>
+          <app-contador
+            [idCampo]="'sobran-' + fila.productoId"
+            [etiqueta]="'Vasos que quedaron de ' + fila.nombre"
+            [valor]="fila.sobran"
+            (valorChange)="fijarSobrantes(fila.productoId, $event)"
+          />
+        </div>
+      } @empty {
+        <div class="vacio">Ese día no hubo vasos.</div>
+      }
+    }
+  </div>
+  <p class="nota-formulario">
+    Cuenta los vasos que quedaron y ponlos aquí. Las ventas del día se calculan solas.
+    @if (fecha() === hoy) {
+      Los vasos se agregan desde Inicio.
+    }
+  </p>
+
+  @if (!cargando()) {
+    <h3 class="etiqueta-seccion">Empleada</h3>
+    <div class="lista">
+      <label class="fila campo" for="cerrar-sueldo">
+        <span class="campo-etiqueta">Sueldo del día</span>
+        <app-campo-moneda idCampo="cerrar-sueldo" [(valor)]="sueldo" />
+      </label>
+    </div>
+    <p class="nota-formulario">Pon 0 si ese día no trabajó. Se descuenta de la caja.</p>
+
+    <h3 class="etiqueta-seccion">Nota</h3>
+    <div class="lista">
+      <label class="fila campo" for="cerrar-nota">
+        <input
+          id="cerrar-nota"
+          type="text"
+          placeholder="Opcional"
+          autocomplete="off"
+          maxlength="200"
+          style="text-align: left"
+          [value]="nota()"
+          (input)="nota.set($any($event.target).value)"
+        />
+      </label>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="aviso-error" role="alert">{{ error() }}</div>
+  }
+
+  <button
+    type="submit"
+    class="boton boton-primario boton-bloque"
+    style="margin-top: 20px"
+    [disabled]="hayErrores() || guardando() || cargando()"
+  >
+    {{ guardando() ? 'Guardando…' : 'Guardar cierre' }}
+  </button>
+</form>

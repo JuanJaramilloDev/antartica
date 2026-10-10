@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, input, output, signal } from '@angular/core';
+import { Cargando } from '../../components/loading/cargando';
 import { CampoMoneda } from '../../components/money-input/campo-moneda';
 import { Abono, Prestamo } from '../../models/modelos';
 import { FechaCortaPipe } from '../../pipes/fecha-corta';
@@ -9,7 +10,7 @@ import { diasDesde, fechaIso } from '../../utils/fechas';
 
 @Component({
   selector: 'app-detalle-prestamo',
-  imports: [CampoMoneda, MonedaPipe, FechaCortaPipe],
+  imports: [Cargando, CampoMoneda, MonedaPipe, FechaCortaPipe],
   templateUrl: './detalle-prestamo.html',
 })
 export class DetallePrestamo implements OnInit {

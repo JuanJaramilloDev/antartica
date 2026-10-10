@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Cargando } from '../../components/loading/cargando';
 import { Encabezado } from '../../components/page-header/encabezado';
 import { Venta } from '../../models/modelos';
 import { FechaCortaPipe } from '../../pipes/fecha-corta';
@@ -12,7 +13,7 @@ type Periodo = 'hoy' | 'semana' | 'mes';
 
 @Component({
   selector: 'app-ventas',
-  imports: [RouterLink, Encabezado, MonedaPipe, FechaCortaPipe],
+  imports: [Cargando, RouterLink, Encabezado, MonedaPipe, FechaCortaPipe],
   templateUrl: './ventas.html',
 })
 export class Ventas {

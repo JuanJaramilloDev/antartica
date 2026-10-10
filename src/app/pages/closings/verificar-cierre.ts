@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, input, output, signal } from '@angular/core';
+import { Cargando } from '../../components/loading/cargando';
 import { CampoMoneda } from '../../components/money-input/campo-moneda';
 import { CierreDia, JugoDelDia, Pedido, VasosDelDia } from '../../models/modelos';
 import { FechaCortaPipe } from '../../pipes/fecha-corta';
@@ -11,7 +12,7 @@ import { VasosService } from '../../services/vasos';
 
 @Component({
   selector: 'app-verificar-cierre',
-  imports: [CampoMoneda, MonedaPipe, FechaCortaPipe],
+  imports: [Cargando, CampoMoneda, MonedaPipe, FechaCortaPipe],
   templateUrl: './verificar-cierre.html',
   styles: `
     .aviso-cuadre {
@@ -38,6 +39,7 @@ export class VerificarCierre implements OnInit {
   readonly cierre = input.required<CierreDia>();
   readonly sueldoPorDefecto = input(0);
   readonly cambiado = output<void>();
+  readonly corregir = output<void>();
   readonly cerrar = output<void>();
 
   protected readonly vasos = signal<VasosDelDia[]>([]);
@@ -63,22 +65,25 @@ export class VerificarCierre implements OnInit {
         const tenia = v.arrastre + v.cantidad;
         const sobran = v.sobrantes ?? 0;
         const porConteo = tenia - sobran;
-        const vendidos = registrados.get(v.nombre) ?? 0;
-        return { ...v, tenia, sobran, porConteo, vendidos, diferencia: porConteo - vendidos };
+        const registradas = registrados.get(v.nombre) ?? 0;
+        return { ...v, tenia, sobran, porConteo, registradas, deMas: Math.max(registradas - porConteo, 0) };
       })
-      .filter((f) => f.tenia > 0 || f.vendidos > 0);
+      .filter((f) => f.tenia > 0 || f.registradas > 0);
   });
 
   protected readonly jugosUsados = computed(() => this.jugos().filter((j) => j.usadosHoy > 0));
+  protected readonly efectivoEsperado = computed(
+    () => this.cierre().totalVentas - this.cierre().nequi,
+  );
   protected readonly diferenciaEfectivo = computed(() => {
     const contado = this.cierre().efectivoContado;
-    return contado === null ? null : contado - this.cierre().efectivo;
+    return contado === null ? null : contado - this.efectivoEsperado();
   });
   protected readonly debesTener = computed(
     () => this.cierre().totalVentas - (this.sueldo() ?? 0),
   );
   protected readonly cuadra = computed(
-    () => this.filas().every((f) => f.diferencia === 0) && (this.diferenciaEfectivo() ?? 0) === 0,
+    () => this.filas().every((f) => f.deMas === 0) && (this.diferenciaEfectivo() ?? 0) === 0,
   );
 
   ngOnInit(): void {

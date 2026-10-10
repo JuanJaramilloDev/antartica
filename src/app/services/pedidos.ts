@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { MetodoPago, Pedido, ProductoVenta } from '../models/modelos';
-import { fechaIso } from '../utils/fechas';
+import { MetodoPago, Pedido } from '../models/modelos';
 import { SupabaseService } from './supabase';
 
 interface FilaPedido {
@@ -14,29 +13,6 @@ interface FilaPedido {
 @Injectable({ providedIn: 'root' })
 export class PedidosService {
   private readonly db = inject(SupabaseService).cliente;
-
-  async productos(): Promise<ProductoVenta[]> {
-    const { data, error } = await this.db
-      .from('productos')
-      .select('id, nombre, precio_venta')
-      .eq('activo', true)
-      .order('orden')
-      .order('nombre');
-    if (error) throw error;
-    return data.map((p) => ({ id: p.id, nombre: p.nombre, precioVenta: Number(p.precio_venta) }));
-  }
-
-  async registrar(metodo: MetodoPago, cantidades: Record<string, number>): Promise<void> {
-    const { error } = await this.db.rpc('registrar_venta', {
-      p_metodo: metodo,
-      p_items: cantidades,
-    });
-    if (error) throw error;
-  }
-
-  async deHoy(): Promise<Pedido[]> {
-    return this.deFecha(fechaIso());
-  }
 
   async deFecha(fecha: string): Promise<Pedido[]> {
     const { data, error } = await this.db
@@ -60,10 +36,5 @@ export class PedidosService {
         total: items.reduce((t, i) => t + i.total, 0),
       };
     });
-  }
-
-  async deshacer(id: string): Promise<void> {
-    const { error } = await this.db.from('pedidos').delete().eq('id', id);
-    if (error) throw error;
   }
 }

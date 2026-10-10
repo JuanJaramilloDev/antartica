@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, input, output, signal } from '@angular/core';
+import { Cargando } from '../../components/loading/cargando';
 import { CampoMoneda } from '../../components/money-input/campo-moneda';
 import { CategoriaGasto, Gasto, ResumenMes } from '../../models/modelos';
 import { FechaCortaPipe } from '../../pipes/fecha-corta';
@@ -11,7 +12,7 @@ type CategoriaManual = Extract<CategoriaGasto, 'Reinversión' | 'Otro'>;
 
 @Component({
   selector: 'app-detalle-mes',
-  imports: [CampoMoneda, MonedaPipe, FechaCortaPipe],
+  imports: [Cargando, CampoMoneda, MonedaPipe, FechaCortaPipe],
   templateUrl: './detalle-mes.html',
 })
 export class DetalleMes implements OnInit {

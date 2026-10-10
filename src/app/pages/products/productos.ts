@@ -1,4 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { Cargando } from '../../components/loading/cargando';
 import { Hoja } from '../../components/bottom-sheet/hoja';
 import { Encabezado } from '../../components/page-header/encabezado';
 import { Producto } from '../../models/modelos';
@@ -9,7 +10,7 @@ import { FormularioProducto } from './formulario-producto';
 
 @Component({
   selector: 'app-productos',
-  imports: [Encabezado, Hoja, FormularioProducto, MonedaPipe],
+  imports: [Cargando, Encabezado, Hoja, FormularioProducto, MonedaPipe],
   templateUrl: './productos.html',
 })
 export class Productos {

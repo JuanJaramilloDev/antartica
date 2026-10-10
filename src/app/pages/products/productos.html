@@ -41,7 +41,7 @@
     }
 
     @if (cargando()) {
-      <h2 class="etiqueta-seccion">Cargando…</h2>
+      <app-cargando />
     } @else if (!error()) {
       <h2 class="etiqueta-seccion">
         {{ visibles().length }} {{ visibles().length === 1 ? 'producto' : 'productos' }}

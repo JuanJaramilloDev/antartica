@@ -145,3 +145,11 @@
   color: var(--rojo);
   background: rgba(239, 75, 75, 0.1);
 }
+
+.estado-cierre {
+  border-left: 4px solid var(--naranja);
+}
+
+.estado-cierre.verificado {
+  border-left-color: var(--verde);
+}

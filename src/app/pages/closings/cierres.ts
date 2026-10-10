@@ -1,4 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { Cargando } from '../../components/loading/cargando';
 import { Hoja } from '../../components/bottom-sheet/hoja';
 import { Encabezado } from '../../components/page-header/encabezado';
 import { Ajustes, CierreDia, ResumenMes } from '../../models/modelos';
@@ -8,6 +9,7 @@ import { CierresService } from '../../services/cierres';
 import { mensajeDeError } from '../../services/supabase';
 import { fechaIso, nombreMes } from '../../utils/fechas';
 import { AjustesSueldos } from './ajustes-sueldos';
+import { CerrarDia } from './cerrar-dia';
 import { DetalleMes } from './detalle-mes';
 import { DetalleSemestre, Semestre, mesVacio } from './detalle-semestre';
 import { VerificarCierre } from './verificar-cierre';
@@ -22,9 +24,11 @@ interface FilaSemestre extends Semestre {
 @Component({
   selector: 'app-cierres',
   imports: [
+    Cargando,
     Encabezado,
     Hoja,
     VerificarCierre,
+    CerrarDia,
     DetalleMes,
     DetalleSemestre,
     AjustesSueldos,
@@ -37,7 +41,7 @@ export class Cierres {
   private readonly servicio = inject(CierresService);
 
   protected readonly nombreMes = nombreMes;
-  private readonly hoy = fechaIso();
+  protected readonly hoy = fechaIso();
 
   protected readonly ajustes = signal<Ajustes>({ sueldoEmpleadaDia: 0, sueldoMioMes: 0 });
   protected readonly cierres = signal<CierreDia[]>([]);
@@ -45,7 +49,8 @@ export class Cierres {
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
 
-  protected readonly hoja = signal<'cierre' | 'mes' | 'semestre' | 'sueldos' | null>(null);
+  protected readonly hoja = signal<'cierre' | 'cerrar' | 'mes' | 'semestre' | 'sueldos' | null>(null);
+  protected readonly fechaACerrar = signal(this.hoy);
   protected readonly cierreEnEdicion = signal<CierreDia | null>(null);
   protected readonly mesSeleccionado = signal<ResumenMes | null>(null);
   protected readonly semestreSeleccionado = signal<Semestre | null>(null);
@@ -116,6 +121,11 @@ export class Cierres {
   protected abrirCierre(cierre: CierreDia): void {
     this.cierreEnEdicion.set(cierre);
     this.hoja.set('cierre');
+  }
+
+  protected cerrarDia(fecha: string): void {
+    this.fechaACerrar.set(fecha);
+    this.hoja.set('cerrar');
   }
 
   protected abrirMes(mes: ResumenMes): void {

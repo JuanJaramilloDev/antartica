@@ -1,4 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { Cargando } from '../../components/loading/cargando';
 import { Hoja } from '../../components/bottom-sheet/hoja';
 import { Encabezado } from '../../components/page-header/encabezado';
 import { CATEGORIA_JUGOS, DatosInsumo, Insumo } from '../../models/modelos';
@@ -10,7 +11,7 @@ type Filtro = 'insumos' | 'jugos' | 'reponer';
 
 @Component({
   selector: 'app-inventario',
-  imports: [Encabezado, Hoja, FormularioInsumo],
+  imports: [Cargando, Encabezado, Hoja, FormularioInsumo],
   templateUrl: './inventario.html',
 })
 export class Inventario {
