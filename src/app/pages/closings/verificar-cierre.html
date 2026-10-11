@@ -72,9 +72,6 @@
           <div class="fila-titulo">{{ fila.nombre }}</div>
           <div class="fila-subtitulo">
             Tenía {{ fila.tenia }}
-            @if (fila.arrastre) {
-              ({{ fila.arrastre }} de antes + {{ fila.cantidad }} agregados)
-            }
             · sobran {{ fila.sobran }}
           </div>
           @if (fila.registradas) {

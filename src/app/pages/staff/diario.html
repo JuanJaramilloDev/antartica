@@ -19,7 +19,7 @@
         <div class="tarjeta vaso">
           <div class="vaso-info">
             <div class="vaso-nombre">{{ item.nombre }}</div>
-            <div class="vaso-detalle">Disponibles {{ item.arrastre + item.cantidad }}</div>
+            <div class="vaso-detalle">Disponibles {{ item.sobrantes ?? item.arrastre + item.cantidad }}</div>
             @if (item.paquetesEnInventario !== null) {
               <div class="vaso-detalle" [class.texto-rojo]="item.paquetesEnInventario < 1">
                 Quedan {{ item.paquetesEnInventario }} paquetes
